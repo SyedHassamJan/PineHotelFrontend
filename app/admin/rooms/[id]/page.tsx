@@ -52,6 +52,7 @@ export default function RoomDetailPage() {
   const [error, setError] = useState("")
   const [showCarousel, setShowCarousel] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     const hotelOwnerAuth = localStorage.getItem("hotelOwnerAuth")
@@ -113,6 +114,37 @@ export default function RoomDetailPage() {
   const handleLogout = () => {
     localStorage.clear()
     router.push("/admin/login")
+  }
+
+  const handleDeleteRoom = async () => {
+    if (!confirm('Are you sure you want to delete this room? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      setDeleting(true)
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
+      const token = localStorage.getItem('access_token')
+      
+      const response = await fetch(`${baseUrl}api/rooms/rooms/${roomId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete room')
+      }
+
+      // Redirect to rooms page after successful deletion
+      router.push('/admin/rooms')
+      
+    } catch (err) {
+      console.error('Error deleting room:', err)
+      alert('Failed to delete room. Please try again.')
+      setDeleting(false)
+    }
   }
 
   const openCarousel = (index: number = 0) => {
@@ -302,9 +334,13 @@ export default function RoomDetailPage() {
                 <Edit className="w-4 h-4" />
                 Edit Room
               </Link>
-              <button className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+              <button 
+                onClick={handleDeleteRoom}
+                disabled={deleting}
+                className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <Trash2 className="w-4 h-4" />
-                Delete
+                {deleting ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>

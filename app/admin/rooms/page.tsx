@@ -48,6 +48,7 @@ export default function RoomsPage() {
   const [showCarousel, setShowCarousel] = useState(false)
   const [carouselImages, setCarouselImages] = useState<string[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [deletingRoomId, setDeletingRoomId] = useState<string | null>(null)
 
   useEffect(() => {
     const hotelOwnerAuth = localStorage.getItem("hotelOwnerAuth")
@@ -109,6 +110,38 @@ export default function RoomsPage() {
   const handleLogout = () => {
     localStorage.clear()
     router.push("/admin/login")
+  }
+
+  const handleDeleteRoom = async (roomId: string) => {
+    if (!confirm('Are you sure you want to delete this room? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      setDeletingRoomId(roomId)
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
+      const token = localStorage.getItem('access_token')
+      
+      const response = await fetch(`${baseUrl}api/rooms/rooms/${roomId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete room')
+      }
+
+      // Remove the deleted room from the state
+      setRooms(rooms.filter(room => room.id !== roomId))
+      
+    } catch (err) {
+      console.error('Error deleting room:', err)
+      alert('Failed to delete room. Please try again.')
+    } finally {
+      setDeletingRoomId(null)
+    }
   }
 
   const openCarousel = (images: string[], startIndex: number = 0) => {
@@ -420,9 +453,13 @@ export default function RoomsPage() {
                           <Edit className="w-4 h-4 inline mr-1" />
                           Edit
                         </Link>
-                        <button className="px-3 py-1.5 text-sm border rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600">
+                        <button 
+                          onClick={() => handleDeleteRoom(room.id)}
+                          disabled={deletingRoomId === room.id}
+                          className="px-3 py-1.5 text-sm border rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                           <Trash2 className="w-4 h-4 inline mr-1" />
-                          Delete
+                          {deletingRoomId === room.id ? 'Deleting...' : 'Delete'}
                         </button>
                       </div>
                     </div>
