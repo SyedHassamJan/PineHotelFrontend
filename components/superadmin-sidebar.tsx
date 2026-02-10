@@ -12,7 +12,9 @@ import {
   FileText,
   BarChart3,
   Shield,
-  Bell
+  Bell,
+  Calendar,
+  Car
 } from "lucide-react"
 
 const menuItems = [
@@ -37,6 +39,27 @@ const menuItems = [
     icon: Building2,
   },
   {
+    title: "Bookings",
+    href: "/superadmin/bookings",
+    icon: Calendar,
+  },
+  {
+    title: "Cars",
+    href: "/superadmin/cars",
+    icon: Car,
+  },
+ 
+  {
+    title: "Car Bookings",
+    href: "/superadmin/car-bookings",
+    icon: Calendar,
+  },
+   {
+    title: "Tours",
+    href: "/superadmin/tours",
+    icon: MapPin,
+  },
+  {
     title: "Tour Submissions",
     href: "/superadmin/tour-submissions",
     icon: MapPin,
@@ -45,21 +68,6 @@ const menuItems = [
     title: "Guide Submissions",
     href: "/superadmin/guide-submissions",
     icon: UserCheck,
-  },
-  {
-    title: "Analytics",
-    href: "/superadmin/analytics",
-    icon: BarChart3,
-  },
-  {
-    title: "Reports",
-    href: "/superadmin/reports",
-    icon: FileText,
-  },
-  {
-    title: "Notifications",
-    href: "/superadmin/notifications",
-    icon: Bell,
   },
   {
     title: "Settings",

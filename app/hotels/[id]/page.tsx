@@ -7,6 +7,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
 import Image from "next/image"
 
 interface Amenity {
@@ -58,6 +63,109 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true)
   const [loadingRooms, setLoadingRooms] = useState(true)
   const [selectedImage, setSelectedImage] = useState(0)
+
+  // Booking State
+  const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
+  const [bookingLoading, setBookingLoading] = useState(false)
+  const [bookingData, setBookingData] = useState({
+    userName: "",
+    userEmail: "",
+    userPhone: "",
+    checkIn: "",
+    checkOut: "",
+    roomsBooked: 1
+  })
+
+  const handleBookClick = (room: Room) => {
+    setSelectedRoom(room)
+    setBookingData(prev => ({ ...prev, roomsBooked: 1 }))
+    setIsBookingOpen(true)
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setBookingData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleBookingSubmit = async () => {
+    if (!selectedRoom || !hotel) return
+
+    // Validate all fields are filled
+    if (
+      !bookingData.userName || 
+      !bookingData.userEmail || 
+      !bookingData.userPhone || 
+      !bookingData.checkIn || 
+      !bookingData.checkOut || 
+      !bookingData.roomsBooked
+    ) {
+      toast.error("Validation Error", {
+        description: "All fields are required. Please fill in all details.",
+      })
+      return
+    }
+
+    setBookingLoading(true)
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
+      const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+      const url = `${normalizedBaseUrl}api/bookings`
+
+      const payload = {
+        hotelId: hotel.id,
+        roomId: selectedRoom.id,
+        checkIn: bookingData.checkIn,
+        checkOut: bookingData.checkOut,
+        roomsBooked: Number(bookingData.roomsBooked),
+        userName: bookingData.userName,
+        userEmail: bookingData.userEmail,
+        userPhone: bookingData.userPhone
+      }
+
+      console.log("Submitting booking:", payload)
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast.success("Booking successful!", {
+          description: "Your room has been booked successfully.",
+        })
+        setIsBookingOpen(false)
+        // Reset form
+        setBookingData({
+          userName: "",
+          userEmail: "",
+          userPhone: "",
+          checkIn: "",
+          checkOut: "",
+          roomsBooked: 1
+        })
+      } else {
+        toast.error("Booking failed", {
+          description: data.message || "Could not complete your booking.",
+        })
+      }
+    } catch (error) {
+      console.error("Booking error:", error)
+      toast.error("Network error", {
+        description: "Failed to connect to server.",
+      })
+    } finally {
+      setBookingLoading(false)
+    }
+  }
 
   useEffect(() => {
     fetchHotelData()
@@ -416,7 +524,11 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                           </div>
                         )}
 
-                        <Button className="w-full md:w-auto" disabled={!room.price || Number(room.price) === 0}>
+                        <Button 
+                          className="w-full md:w-auto" 
+                          disabled={!room.price || Number(room.price) === 0}
+                          onClick={() => handleBookClick(room)}
+                        >
                           Book Now
                         </Button>
                       </div>
@@ -432,6 +544,98 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         )}
       </section>
+
+      <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Book {selectedRoom?.roomType}</DialogTitle>
+            <DialogDescription>
+              Enter your details to confirm your booking.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="userName">Full Name</Label>
+                <Input
+                  id="userName"
+                  name="userName"
+                  value={bookingData.userName}
+                  onChange={handleInputChange}
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="userEmail">Email</Label>
+                <Input
+                  id="userEmail"
+                  name="userEmail"
+                  type="email"
+                  value={bookingData.userEmail}
+                  onChange={handleInputChange}
+                  placeholder="john@example.com"
+                />
+              </div>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="userPhone">Phone Number</Label>
+              <Input
+                id="userPhone"
+                name="userPhone"
+                value={bookingData.userPhone}
+                onChange={handleInputChange}
+                placeholder="+1234567890"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="checkIn">Check In</Label>
+                <Input
+                  id="checkIn"
+                  name="checkIn"
+                  type="date"
+                  value={bookingData.checkIn}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="checkOut">Check Out</Label>
+                <Input
+                  id="checkOut"
+                  name="checkOut"
+                  type="date"
+                  value={bookingData.checkOut}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="roomsBooked">Number of Rooms</Label>
+              <Input
+                id="roomsBooked"
+                name="roomsBooked"
+                type="number"
+                min="1"
+                max={selectedRoom?.quantity || 5}
+                value={bookingData.roomsBooked}
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsBookingOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleBookingSubmit} disabled={bookingLoading}>
+              {bookingLoading ? "Processing..." : "Confirm Booking"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Toaster />
     </div>
   )
 }

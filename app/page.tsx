@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronDown, MapPin, Plane, Car } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { ChevronDown, MapPin, Plane, Car, Search, Users, Bed } from "lucide-react"
 import { HotelCard } from "@/components/hotel-card"
 import { TourCard } from "@/components/tour-card"
 import { GuideCard } from "@/components/guide-card"
@@ -34,6 +35,25 @@ interface HotelCardProps {
   reviews?: number
   hotelRank?: number
   numberOfRooms?: number
+}
+
+interface Tour {
+  id: string
+  title: string
+  slug: string | null
+  shortDescription: string
+  description: string
+  durationDays: number
+  durationNights: number
+  city: string
+  locations: string[]
+  pricePerPerson: number
+  includes: string[]
+  excludes: string[]
+  cardImages: string[]
+  status: string
+  createdAt: string
+  updatedAt: string
 }
 
 const POPULAR_TOURS = [
@@ -248,9 +268,18 @@ const CAR_TYPES = [
 ]
 
 export default function Home() {
+  const router = useRouter() // Import useRouter
+  const [activeTab, setActiveTab] = useState("hotel")
   const [toursDropdownOpen, setToursDropdownOpen] = useState(false)
   const [selectedTour, setSelectedTour] = useState<string | null>(null)
   const [showTourSubMenu, setShowTourSubMenu] = useState<"destinations" | "calendar" | "persons" | null>(null)
+  
+  // Search State
+  const [city, setCity] = useState("")
+  const [checkInDate, setCheckInDate] = useState("")
+  const [checkOutDate, setCheckOutDate] = useState("")
+  const [guests, setGuests] = useState("")
+
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0])
   const [selectedPersonType, setSelectedPersonType] = useState<string | null>(null)
   const [carDropdownOpen, setCarDropdownOpen] = useState(false)
@@ -259,16 +288,93 @@ export default function Home() {
   const [carDays, setCarDays] = useState(1)
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [loadingHotels, setLoadingHotels] = useState(true)
+  const [cars, setCars] = useState<any[]>([])
+  const [loadingCars, setLoadingCars] = useState(true)
+  const [tours, setTours] = useState<Tour[]>([])
+  const [loadingTours, setLoadingTours] = useState(true)
 
   useEffect(() => {
+    // Set default dates
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const dayAfter = new Date()
+    dayAfter.setDate(dayAfter.getDate() + 3)
+    
+    setCheckInDate(tomorrow.toISOString().split('T')[0])
+    setCheckOutDate(dayAfter.toISOString().split('T')[0])
+    setGuests("2")
+    
     fetchHotels()
+    fetchCars()
+    fetchTours()
   }, [])
+
+  const handleSearch = () => {
+    // Basic validation
+    if (!city || !checkInDate || !checkOutDate) {
+        // You would typically show a toast/alert here
+        alert("Please fill in all required fields (City, Dates)")
+        return
+    }
+
+    const params = new URLSearchParams()
+    
+    if (activeTab === "hotel") {
+       params.append("city", city)
+       params.append("checkIn", checkInDate)
+       params.append("checkOut", checkOutDate)
+       if (guests) params.append("guests", guests)
+       router.push(`/search/hotels?${params.toString()}`)
+    } else if (activeTab === "car") {
+       params.append("pickupDate", checkInDate)
+       params.append("dropoffDate", checkOutDate)
+       params.append("city", city)
+       router.push(`/search/cars?${params.toString()}`)
+    }
+  }
+
+  const fetchCars = async () => {
+    try {
+      setLoadingCars(true)
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
+      const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+      const response = await fetch(`${normalizedBaseUrl}api/cars`)
+      if (response.ok) {
+        const data = await response.json()
+        const carsData = Array.isArray(data) ? data : (data.data || [])
+        setCars(carsData)
+      }
+    } catch (error) {
+      console.error("Error fetching cars:", error)
+    } finally {
+      setLoadingCars(false)
+    }
+  }
+
+  const fetchTours = async () => {
+    try {
+      setLoadingTours(true)
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
+      const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+      const response = await fetch(`${normalizedBaseUrl}api/tours?limit=4`)
+      if (response.ok) {
+        const data = await response.json()
+        const toursData = Array.isArray(data) ? data : (data.data || [])
+        setTours(toursData)
+      }
+    } catch (error) {
+      console.error("Error fetching tours:", error)
+    } finally {
+      setLoadingTours(false)
+    }
+  }
 
   const fetchHotels = async () => {
     try {
       setLoadingHotels(true)
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
-      const response = await fetch(`${baseUrl}api/hotels`)
+      const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+      const response = await fetch(`${normalizedBaseUrl}api/hotels`)
       
       if (response.ok) {
         const data = await response.json()
@@ -361,239 +467,90 @@ export default function Home() {
           {/* Search Bar - Fixed positioning with proper z-index */}
           <div className="relative z-40">
             <div className="bg-card border border-border rounded-xl p-6 shadow-lg animate-slideInDown">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setToursDropdownOpen(!toursDropdownOpen)
-                      setShowTourSubMenu(null)
-                    }}
-                    className="w-full flex items-center justify-between bg-muted rounded-lg px-4 py-3 text-foreground hover:bg-muted/80 transition"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Plane className="w-5 h-5 text-primary flex-shrink-0" />
-                      <span className="hidden sm:inline truncate">Tours</span>
-                      <span className="sm:hidden text-sm">Tours</span>
-                    </span>
-                    <ChevronDown
-                      className={`w-4 h-4 transition flex-shrink-0 ${toursDropdownOpen ? "rotate-180" : ""}`}
-                    />
-                  </button>
-
-                  {toursDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-2 w-max bg-card border border-border rounded-lg shadow-xl z-50">
-                      <div className="flex flex-col sm:flex-row gap-2 p-4">
-                        {/* Destination Button */}
-                        <div className="relative">
-                          <button
-                            onClick={() =>
-                              setShowTourSubMenu(showTourSubMenu === "destinations" ? null : "destinations")
-                            }
-                            className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-foreground transition flex items-center gap-2 whitespace-nowrap text-sm"
-                          >
-                            <span>{selectedTour || "Destination"}</span>
-                            <ChevronDown
-                              className={`w-4 h-4 transition ${showTourSubMenu === "destinations" ? "rotate-180" : ""}`}
-                            />
-                          </button>
-
-                          {showTourSubMenu === "destinations" && (
-                            <div className="absolute top-full left-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
-                              {TOUR_DESTINATIONS.map((dest) => (
-                                <button
-                                  key={dest}
-                                  onClick={() => {
-                                    setSelectedTour(dest)
-                                    setShowTourSubMenu(null)
-                                  }}
-                                  className="w-full text-left px-4 py-2 hover:bg-primary/20 text-foreground transition text-sm"
-                                >
-                                  {dest}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Calendar Button */}
-                        <div className="relative">
-                          <button
-                            onClick={() => setShowTourSubMenu(showTourSubMenu === "calendar" ? null : "calendar")}
-                            className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-foreground transition flex items-center gap-2 whitespace-nowrap text-sm"
-                          >
-                            <span>{formatDate(selectedDate)}</span>
-                            <ChevronDown
-                              className={`w-4 h-4 transition ${showTourSubMenu === "calendar" ? "rotate-180" : ""}`}
-                            />
-                          </button>
-
-                          {showTourSubMenu === "calendar" && (
-                            <div className="absolute top-full left-0 mt-2 bg-card border border-border rounded-lg shadow-xl z-50 p-3">
-                              <input
-                                type="date"
-                                value={selectedDate}
-                                onChange={(e) => {
-                                  setSelectedDate(e.target.value)
-                                  setShowTourSubMenu(null)
-                                }}
-                                className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-foreground text-sm"
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Tour Type Button */}
-                        <div className="relative">
-                          <button
-                            onClick={() => setShowTourSubMenu(showTourSubMenu === "persons" ? null : "persons")}
-                            className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-foreground transition flex items-center gap-2 whitespace-nowrap text-sm"
-                          >
-                            <span>{selectedPersonType || "Tour Type"}</span>
-                            <ChevronDown
-                              className={`w-4 h-4 transition ${showTourSubMenu === "persons" ? "rotate-180" : ""}`}
-                            />
-                          </button>
-
-                          {showTourSubMenu === "persons" && (
-                            <div className="absolute top-full left-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-xl z-50 max-h-48 overflow-y-auto">
-                              {PERSON_TYPES.map((type) => (
-                                <button
-                                  key={type}
-                                  onClick={() => {
-                                    setSelectedPersonType(type)
-                                    setShowTourSubMenu(null)
-                                  }}
-                                  className="w-full text-left px-4 py-2 hover:bg-primary/20 text-foreground transition text-sm"
-                                >
-                                  {type}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+              <div className="flex flex-col gap-4">
+                
+                {/* Tabs */}
+                <div className="flex items-center gap-2 mb-2">
+                   <button 
+                      onClick={() => setActiveTab("hotel")}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "hotel" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                   >
+                      <Bed className="w-4 h-4" /> Hotels
+                   </button>
+                   <button 
+                      onClick={() => setActiveTab("car")}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "car" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                   >
+                      <Car className="w-4 h-4" /> Cars
+                   </button>
                 </div>
 
-                {/* Hotels Button */}
-                <button className="flex items-center justify-between bg-muted rounded-lg px-4 py-3 text-foreground hover:bg-muted/80 transition">
-                  <span className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="hidden sm:inline">Hotels</span>
-                    <span className="sm:hidden text-sm">Hotels</span>
-                  </span>
-                  <ChevronDown className="w-4 h-4 flex-shrink-0" />
-                </button>
+                {/* Search Inputs Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {/* City Input */}
+                  <div className="relative">
+                     <div className="flex items-center bg-muted rounded-lg px-4 py-3 border border-transparent focus-within:border-primary transition h-full">
+                        <MapPin className="w-5 h-5 text-primary flex-shrink-0 mr-2" />
+                        <input 
+                          type="text" 
+                          placeholder={activeTab === "hotel" ? "Where to?" : "Pickup City"}
+                          className="bg-transparent border-none outline-none text-foreground placeholder-muted-foreground w-full text-sm font-medium"
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                        />
+                     </div>
+                  </div>
 
-                {/* Rent a Car Dropdown */}
-                <div className="relative">
-                  <button
-                    onClick={() => setCarDropdownOpen(!carDropdownOpen)}
-                    className="w-full flex items-center justify-between bg-muted rounded-lg px-4 py-3 text-foreground hover:bg-muted/80 transition"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Car className="w-5 h-5 text-primary flex-shrink-0" />
-                      <span className="hidden sm:inline truncate">
-                        {carRentalOption
-                          ? carRentalOption === "per-day"
-                            ? `Per-Day (${carDays} days)`
-                            : "Add to Package"
-                          : "Rent a Car"}
-                      </span>
-                      <span className="sm:hidden text-sm">{carRentalOption ? "Car" : "Car"}</span>
-                    </span>
-                    <ChevronDown
-                      className={`w-4 h-4 transition flex-shrink-0 ${carDropdownOpen ? "rotate-180" : ""}`}
-                    />
-                  </button>
-                  {carDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-2 w-full bg-card border border-border rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto">
-                      {!carRentalOption ? (
-                        <>
-                          {carRentalOptions.map((option) => (
-                            <button
-                              key={option.id}
-                              onClick={() => setCarRentalOption(option.id)}
-                              className="w-full text-left px-4 py-3 hover:bg-muted text-foreground transition border-b border-border last:border-b-0"
-                            >
-                              <div className="font-medium text-sm">{option.label}</div>
-                              <div className="text-xs text-muted-foreground">{option.description}</div>
-                            </button>
-                          ))}
-                        </>
-                      ) : carRentalOption === "per-day" ? (
-                        <>
-                          <button
-                            onClick={() => {
-                              setCarRentalOption(null)
-                              setSelectedCar(null)
-                            }}
-                            className="w-full text-left px-4 py-2 hover:bg-muted text-foreground transition text-sm border-b border-border font-medium"
-                          >
-                            ← Back to Options
-                          </button>
-                          <div className="px-4 py-3 border-b border-border">
-                            <label className="block text-sm font-medium text-foreground mb-2">Number of Days:</label>
-                            <input
-                              type="number"
+                  {/* Dates */}
+                  <div className="grid grid-cols-2 gap-2">
+                     <div className="flex flex-col justify-center bg-muted rounded-lg px-3 py-1 border border-transparent focus-within:border-primary transition h-full">
+                        <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{activeTab === "hotel" ? "Check In" : "Pickup Date"}</label>
+                        <input 
+                          type="date" 
+                          className="bg-transparent border-none outline-none text-foreground text-xs font-semibold w-full p-0"
+                          value={checkInDate}
+                          onChange={(e) => setCheckInDate(e.target.value)}
+                        />
+                     </div>
+                     <div className="flex flex-col justify-center bg-muted rounded-lg px-3 py-1 border border-transparent focus-within:border-primary transition h-full">
+                        <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{activeTab === "hotel" ? "Check Out" : "Dropoff Date"}</label>
+                        <input 
+                          type="date" 
+                          className="bg-transparent border-none outline-none text-foreground text-xs font-semibold w-full p-0"
+                          value={checkOutDate}
+                          onChange={(e) => setCheckOutDate(e.target.value)}
+                        />
+                     </div>
+                  </div>
+
+                  {/* Guests Input */}
+                   <div className="relative">
+                      {activeTab === "hotel" ? (
+                         <div className="flex items-center bg-muted rounded-lg px-4 py-3 border border-transparent focus-within:border-primary transition h-full">
+                            <Users className="w-5 h-5 text-primary flex-shrink-0 mr-2" />
+                             <input 
+                              type="number" 
                               min="1"
-                              max="30"
-                              value={carDays}
-                              onChange={(e) => setCarDays(Math.max(1, Number.parseInt(e.target.value) || 1))}
-                              className="w-full px-2 py-1 border border-border rounded text-sm text-foreground bg-background"
+                              placeholder="Guests" 
+                              className="bg-transparent border-none outline-none text-foreground placeholder-muted-foreground w-full text-sm font-medium"
+                              value={guests}
+                              onChange={(e) => setGuests(e.target.value)}
                             />
-                          </div>
-                          {CAR_TYPES.map((car) => (
-                            <button
-                              key={car}
-                              onClick={() => {
-                                setSelectedCar(car)
-                                setCarDropdownOpen(false)
-                              }}
-                              className="w-full text-left px-4 py-2 hover:bg-muted text-foreground transition text-sm"
-                            >
-                              {car}
-                            </button>
-                          ))}
-                        </>
+                         </div>
                       ) : (
-                        <>
-                          <button
-                            onClick={() => {
-                              setCarRentalOption(null)
-                              setSelectedCar(null)
-                            }}
-                            className="w-full text-left px-4 py-2 hover:bg-muted text-foreground transition text-sm border-b border-border font-medium"
-                          >
-                            ← Back to Options
-                          </button>
-                          <div className="px-4 py-3 bg-muted border-b border-border text-sm text-foreground">
-                            <p className="font-medium mb-1">Car days will match your package duration</p>
-                            <p className="text-xs text-muted-foreground">Price will be added to your total</p>
-                          </div>
-                          {CAR_TYPES.map((car) => (
-                            <button
-                              key={car}
-                              onClick={() => {
-                                setSelectedCar(car)
-                                setCarDropdownOpen(false)
-                              }}
-                              className="w-full text-left px-4 py-2 hover:bg-muted text-foreground transition text-sm"
-                            >
-                              {car}
-                            </button>
-                          ))}
-                        </>
+                         <div className="hidden md:block"></div>
                       )}
-                    </div>
-                  )}
-                </div>
+                  </div>
 
-                {/* Search Button */}
-                <button className="bg-primary text-primary-foreground rounded-lg px-4 py-3 font-semibold hover:bg-primary/90 transition">
-                  Search
-                </button>
+                  {/* Search Button */}
+                  <button 
+                    onClick={handleSearch}
+                    className="bg-primary text-primary-foreground rounded-lg px-4 py-3 font-semibold hover:bg-primary/90 transition flex items-center justify-center gap-2"
+                  >
+                    <Search className="w-5 h-5" />
+                    Search
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -673,20 +630,150 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Popular Tour Packages */}
+      {/* Featured Cars */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <SectionHeader
-          title="Popular Tour Packages"
-          subtitle="Expertly curated experiences with incredible value"
+          title="Featured Cars"
+          subtitle="Travel in style with our premium fleet"
           centered
         />
-        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-          {POPULAR_TOURS.map((tour) => (
-            <div key={tour.id} className="flex-shrink-0 w-80">
-              <TourCard {...tour} />
+        
+        {loadingCars ? (
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex-shrink-0 w-80 h-96 bg-muted animate-pulse rounded-lg" />
+              ))}
             </div>
-          ))}
-        </div>
+        ) : cars.length > 0 ? (
+          <>
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+              {cars.slice(0, 4).map((car) => (
+                <div key={car.id} className="flex-shrink-0 w-80 group">
+                   <div className="h-full rounded-lg overflow-hidden border bg-card shadow-sm hover:shadow-lg transition-all flex flex-col">
+                      <div className="h-48 relative bg-muted overflow-hidden">
+                        <img 
+                          src={car.images && car.images.length > 0 ? car.images[0] : "/placeholder.svg"} 
+                          alt={car.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+                           {car.hasDriver ? "Driver Optional" : "Self Drive"}
+                        </div>
+                      </div>
+                      <div className="p-4 flex flex-col flex-1">
+                         <div className="mb-2">
+                            <h3 className="font-bold text-lg line-clamp-1">{car.name}</h3>
+                            <p className="text-sm text-muted-foreground flex items-center gap-1">
+                              <MapPin className="w-3 h-3" /> {car.city}
+                            </p>
+                         </div>
+                         <p className="text-xs text-muted-foreground line-clamp-2 mb-4 flex-1">
+                            {car.description}
+                         </p>
+                         <div className="mt-auto pt-4 flex items-center justify-between border-t bg-muted/20 -mx-4 -mb-4 p-4">
+                            <div>
+                               <p className="text-xs text-muted-foreground">Daily Rate</p>
+                               <p className="font-bold text-primary text-lg">${car.pricePerDay}</p>
+                            </div>
+                            <Link href={`/cars/${car.id}`} className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:bg-primary/90 transition-colors shadow-sm">
+                               Book Now
+                            </Link>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+              ))}
+            </div>
+            {cars.length > 4 && (
+              <div className="flex justify-center mt-8">
+                <Link
+                  href="/cars"
+                  className="px-8 py-3 w-full sm:w-auto text-center border border-input bg-background hover:bg-accent hover:text-accent-foreground text-sm font-medium rounded-md transition-colors"
+                >
+                  View All Cars
+                </Link>
+              </div>
+            )}
+          </>
+        ) : (
+           <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">No cars available at the moment</div>
+        )}
+      </section>
+
+      {/* Featured Tours */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <SectionHeader
+          title="Featured Tours"
+          subtitle="Discover amazing tour packages"
+          centered
+        />
+        {loadingTours ? (
+           <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+           </div>
+        ) : tours.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+              {tours.slice(0, 4).map((tour) => {
+                const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
+                const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+                const imageUrl = tour.cardImages && tour.cardImages.length > 0 
+                  ? (tour.cardImages[0].startsWith('http') ? tour.cardImages[0] : `${normalizedBaseUrl}${tour.cardImages[0]}`)
+                  : '/placeholder.svg'
+                
+                return (
+                  <div key={tour.id} className="group border rounded-lg overflow-hidden hover:shadow-lg transition-all bg-card">
+                    <div className="aspect-video relative overflow-hidden bg-muted">
+                      <img
+                        src={imageUrl}
+                        alt={tour.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="p-4 space-y-3">
+                      <h3 className="font-semibold text-lg line-clamp-1">{tour.title}</h3>
+                      {tour.shortDescription && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">{tour.shortDescription}</p>
+                      )}
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4" />
+                        <span className="line-clamp-1">{tour.city || tour.locations?.[0] || 'Multiple Locations'}</span>
+                      </div>
+                      {tour.durationDays > 0 && (
+                        <div className="text-sm text-muted-foreground">
+                          {tour.durationDays} Days / {tour.durationNights} Nights
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between pt-2 border-t">
+                        <div>
+                          <span className="text-xs text-muted-foreground">From</span>
+                          <div className="text-lg font-bold text-primary">${tour.pricePerPerson}</div>
+                          <span className="text-xs text-muted-foreground">per person</span>
+                        </div>
+                        <Link
+                          href={`/tours/${tour.id}`}
+                          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition text-sm font-medium"
+                        >
+                          Book Now
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="flex justify-center mt-8">
+              <Link
+                href="/tours"
+                className="px-8 py-3 w-full sm:w-auto text-center border border-input bg-background hover:bg-accent hover:text-accent-foreground text-sm font-medium rounded-md transition-colors"
+              >
+                View All Tours
+              </Link>
+            </div>
+          </>
+        ) : (
+           <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">No tours available at the moment</div>
+        )}
       </section>
 
       {/* Popular Destinations */}
