@@ -22,6 +22,7 @@ interface Room {
   maxGuests: number
   quantity: number
   bedType: string
+  roomFloor: string
   amenities: string[]
   images: string[]
 }
@@ -49,6 +50,7 @@ export default function EditRoomPage() {
     maxGuests: "",
     quantity: "",
     bedType: "",
+    roomFloor: "",
     amenities: [] as string[],
     images: [] as string[]
   })
@@ -112,6 +114,7 @@ export default function EditRoomPage() {
             maxGuests: room.maxGuests?.toString() || "",
             quantity: room.quantity?.toString() || "",
             bedType: room.bedType || "",
+            roomFloor: room.roomFloor || "",
             amenities: amenitiesList || [],
             images: room.images || []
           })
@@ -205,11 +208,11 @@ export default function EditRoomPage() {
       const updateData: any = {}
       
       // Check each field and only include if changed and not empty
-      if (formData.roomType && formData.roomType !== originalRoom.roomType) {
+      if (formData.roomType?.trim() && formData.roomType !== originalRoom.roomType) {
         updateData.roomType = formData.roomType
       }
       
-      if (formData.description && formData.description !== originalRoom.description) {
+      if (formData.description?.trim() && formData.description !== originalRoom.description) {
         updateData.description = formData.description
       }
       
@@ -227,8 +230,12 @@ export default function EditRoomPage() {
         }
       }
       
-      if (formData.bedType && formData.bedType !== originalRoom.bedType) {
+      if (formData.bedType?.trim() && formData.bedType !== originalRoom.bedType) {
         updateData.bedType = formData.bedType
+      }
+      
+      if (formData.roomFloor?.trim() && formData.roomFloor !== originalRoom.roomFloor) {
+        updateData.roomFloor = formData.roomFloor
       }
       
       // Check if amenities changed
@@ -341,14 +348,14 @@ export default function EditRoomPage() {
           </nav>
 
           <div className="absolute bottom-6 left-6 right-6">
-            <div className="p-3 bg-accent rounded-lg mb-3">
+            {/* <div className="p-3 bg-accent rounded-lg mb-3">
               <p className="text-sm font-medium truncate">{ownerEmail}</p>
               <p className="text-xs text-muted-foreground">Hotel Owner</p>
             </div>
             <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
               <LogOut className="w-4 h-4" />
               Logout
-            </button>
+            </button> */}
           </div>
         </div>
       </aside>
@@ -474,6 +481,23 @@ export default function EditRoomPage() {
                     value={formData.bedType}
                     onChange={handleInputChange}
                     placeholder="e.g., 1 King Bed, 2 Queen Beds"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Leave empty to keep current value</p>
+                </div>
+
+                {/* Room Floor */}
+                <div>
+                  <label htmlFor="roomFloor" className="block text-sm font-medium mb-2">
+                    Room Floor
+                  </label>
+                  <input
+                    type="text"
+                    id="roomFloor"
+                    name="roomFloor"
+                    value={formData.roomFloor}
+                    onChange={handleInputChange}
+                    placeholder="e.g., 3rd Floor, Ground Floor, Floor 5"
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <p className="text-xs text-muted-foreground mt-1">Leave empty to keep current value</p>

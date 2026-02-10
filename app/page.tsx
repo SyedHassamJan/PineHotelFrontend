@@ -19,6 +19,8 @@ interface Hotel {
   description: string
   status: string
   images: string[]
+  hotelRank?: number
+  numberOfRooms?: number
   rooms?: any[]
 }
 
@@ -30,6 +32,8 @@ interface HotelCardProps {
   price: number
   rating?: number
   reviews?: number
+  hotelRank?: number
+  numberOfRooms?: number
 }
 
 const POPULAR_TOURS = [
@@ -747,6 +751,8 @@ export default function Home() {
                       price={Math.round(avgPrice)}
                       rating={4.5}
                       reviews={0}
+                      hotelRank={hotel.hotelRank}
+                      numberOfRooms={hotel.numberOfRooms}
                     />
                   </div>
                 )

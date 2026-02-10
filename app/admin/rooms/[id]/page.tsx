@@ -31,6 +31,7 @@ interface Room {
   maxGuests: number
   quantity: number
   bedType?: string
+  roomFloor?: string
   price?: number | string | null
   amenities: (string | { id: string; name: string })[]
   images?: string[]
@@ -467,6 +468,20 @@ export default function RoomDetailPage() {
                         <div>
                           <p className="text-sm text-muted-foreground">Bed Type</p>
                           <p className="text-lg font-semibold">{room.bedType}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {room.roomFloor && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center">
+                          <Building2 className="w-5 h-5 text-orange-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Room Floor</p>
+                          <p className="text-lg font-semibold">{room.roomFloor}</p>
                         </div>
                       </div>
                     </div>

@@ -33,6 +33,7 @@ export default function AddRoomPage() {
     maxGuests: "",
     quantity: "",
     bedType: "",
+    roomFloor: "",
     amenities: [] as string[]
   })
 
@@ -190,13 +191,16 @@ export default function AddRoomPage() {
       
       // Append text fields
       formDataToSend.append('roomType', formData.roomType)
-      if (formData.description) {
+      if (formData.description.trim()) {
         formDataToSend.append('description', formData.description)
       }
       formDataToSend.append('maxGuests', formData.maxGuests)
       formDataToSend.append('quantity', formData.quantity)
-      if (formData.bedType) {
+      if (formData.bedType.trim()) {
         formDataToSend.append('bedType', formData.bedType)
+      }
+      if (formData.roomFloor.trim()) {
+        formDataToSend.append('roomFloor', formData.roomFloor)
       }
       
       // Append amenities as JSON stringified array
@@ -235,6 +239,7 @@ export default function AddRoomPage() {
         maxGuests: "",
         quantity: "",
         bedType: "",
+        roomFloor: "",
         amenities: []
       })
       setSelectedFiles([])
@@ -442,6 +447,22 @@ export default function AddRoomPage() {
                     value={formData.bedType}
                     onChange={handleInputChange}
                     placeholder="e.g., 1 King Bed, 2 Queen Beds"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                {/* Room Floor */}
+                <div>
+                  <label htmlFor="roomFloor" className="block text-sm font-medium mb-2">
+                    Room Floor
+                  </label>
+                  <input
+                    type="text"
+                    id="roomFloor"
+                    name="roomFloor"
+                    value={formData.roomFloor}
+                    onChange={handleInputChange}
+                    placeholder="e.g., 3rd Floor, Ground Floor, Floor 5"
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>

@@ -31,6 +31,7 @@ interface Room {
   maxGuests: number
   quantity: number
   bedType?: string
+  roomFloor?: string
   price?: number | string | null
   amenities: (string | { id: string; name: string; hotelId?: string; createdAt?: string; updatedAt?: string })[]
   images?: string[]
@@ -366,7 +367,7 @@ export default function RoomsPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-4 mb-3">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                         <div>
                           <p className="text-xs text-muted-foreground">Max Guests</p>
                           <p className="text-sm font-medium">{room.maxGuests} Guests</p>
@@ -375,6 +376,12 @@ export default function RoomsPage() {
                           <div>
                             <p className="text-xs text-muted-foreground">Bed Type</p>
                             <p className="text-sm font-medium">{room.bedType}</p>
+                          </div>
+                        )}
+                        {room.roomFloor && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">Floor</p>
+                            <p className="text-sm font-medium">{room.roomFloor}</p>
                           </div>
                         )}
                         <div>

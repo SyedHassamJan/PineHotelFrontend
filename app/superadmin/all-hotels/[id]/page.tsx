@@ -18,6 +18,8 @@ interface Hotel {
   status: string
   images: string[]
   role: string
+  hotelRank?: number
+  numberOfRooms?: number
   createdAt: string
 }
 
@@ -28,6 +30,7 @@ interface Room {
   maxGuests: number
   quantity: number
   bedType: string
+  roomFloor?: string
   price?: number | string | null
   amenities: string[] | { id: string; name: string; hotelId: string; createdAt: string; updatedAt: string }[]
   images: string[]
@@ -334,6 +337,20 @@ export default function HotelDetailsPage() {
                 <p className="text-sm text-muted-foreground mb-1">Hotel ID</p>
                 <p className="text-lg font-medium">#{hotel.id}</p>
               </div>
+
+              {hotel.hotelRank && (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Hotel Rank</p>
+                  <p className="text-lg font-medium">{'⭐'.repeat(hotel.hotelRank)}</p>
+                </div>
+              )}
+
+              {hotel.numberOfRooms && (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Total Rooms</p>
+                  <p className="text-lg font-medium">{hotel.numberOfRooms}</p>
+                </div>
+              )}
             </div>
 
             {/* Description */}
@@ -402,6 +419,12 @@ export default function HotelDetailsPage() {
                         <Bed className="w-4 h-4 text-muted-foreground" />
                         <span>Bed Type: {room.bedType}</span>
                       </div>
+                      {room.roomFloor && (
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-muted-foreground" />
+                          <span>Floor: {room.roomFloor}</span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-2">
                         <Info className="w-4 h-4 text-muted-foreground" />
                         <span>Available: {room.quantity}</span>

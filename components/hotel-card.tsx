@@ -10,9 +10,11 @@ interface HotelCardProps {
   rating: number
   reviews: number
   isFeatured?: boolean
+  hotelRank?: number
+  numberOfRooms?: number
 }
 
-export function HotelCard({ id, name, image, location, price, rating, reviews, isFeatured }: HotelCardProps) {
+export function HotelCard({ id, name, image, location, price, rating, reviews, isFeatured, hotelRank, numberOfRooms }: HotelCardProps) {
   return (
     <Link href={`/hotels/${id}`}>
       <div className="group bg-card rounded-lg overflow-hidden border border-border hover:shadow-lg transition-all duration-300 cursor-pointer animate-fadeInUp">
@@ -35,7 +37,12 @@ export function HotelCard({ id, name, image, location, price, rating, reviews, i
 
         {/* Content */}
         <div className="p-4">
-          <h3 className="text-lg font-semibold text-foreground mb-2 line-clamp-1">{name}</h3>
+          <div className="flex items-start justify-between mb-2">
+            <h3 className="text-lg font-semibold text-foreground line-clamp-1 flex-1">{name}</h3>
+            {hotelRank && (
+              <span className="text-sm ml-2 flex-shrink-0">{'\u2b50'.repeat(hotelRank)}</span>
+            )}
+          </div>
 
           <div className="flex items-center gap-1 text-muted-foreground text-sm mb-3">
             <MapPin className="w-4 h-4" />
@@ -43,13 +50,20 @@ export function HotelCard({ id, name, image, location, price, rating, reviews, i
           </div>
 
           {/* Rating */}
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-3">
             <div className="flex items-center gap-1">
               <Star className="w-4 h-4 fill-secondary text-secondary" />
               <span className="font-semibold text-foreground">{rating.toFixed(1)}</span>
             </div>
             <span className="text-muted-foreground text-sm">({reviews} reviews)</span>
           </div>
+
+          {/* Number of Rooms */}
+          {numberOfRooms && (
+            <div className="mb-3">
+              <p className="text-xs text-muted-foreground">{numberOfRooms} rooms available</p>
+            </div>
+          )}
 
           {/* Price */}
           <div className="flex items-center justify-between">

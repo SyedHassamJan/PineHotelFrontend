@@ -17,6 +17,8 @@ export default function ListHotelPage() {
     address: "",
     city: "",
     country: "",
+    hotelRank: "",
+    numberOfRooms: "",
   })
   const [images, setImages] = useState<File[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -57,6 +59,8 @@ export default function ListHotelPage() {
       formDataToSend.append('city', formData.city)
       formDataToSend.append('country', formData.country)
       formDataToSend.append('role', 'hotel_owner')
+      formDataToSend.append('hotelRank', formData.hotelRank)
+      formDataToSend.append('numberOfRooms', formData.numberOfRooms)
       
       // Append images
       images.forEach((image) => {
@@ -205,6 +209,43 @@ export default function ListHotelPage() {
                     className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="USA"
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Hotel Rating (Stars) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="hotelRank"
+                    value={formData.hotelRank}
+                    onChange={handleChange}
+                    required
+                    min="1"
+                    max="5"
+                    className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="5"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">1 to 5 stars</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Number of Rooms <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="numberOfRooms"
+                    value={formData.numberOfRooms}
+                    onChange={handleChange}
+                    required
+                    min="1"
+                    className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="50"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Total rooms available</p>
                 </div>
               </div>
             </div>

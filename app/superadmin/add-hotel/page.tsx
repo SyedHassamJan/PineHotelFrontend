@@ -14,6 +14,8 @@ export default function AddHotelPage() {
     address: "",
     city: "",
     country: "",
+    hotelRank: "",
+    numberOfRooms: "",
   })
   const [images, setImages] = useState<File[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -49,6 +51,8 @@ export default function AddHotelPage() {
       formDataToSend.append('address', formData.address)
       formDataToSend.append('city', formData.city)
       formDataToSend.append('country', formData.country)
+      if (formData.hotelRank) formDataToSend.append('hotelRank', formData.hotelRank)
+      if (formData.numberOfRooms) formDataToSend.append('numberOfRooms', formData.numberOfRooms)
       formDataToSend.append('role', 'superadmin') // Backend auto-approves superadmin hotels
       
       // Append images
@@ -144,6 +148,39 @@ export default function AddHotelPage() {
                       className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                       placeholder="Describe your hotel..."
                     />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-foreground mb-2">
+                        Hotel Rank (Stars)
+                      </label>
+                      <input
+                        type="number"
+                        name="hotelRank"
+                        value={formData.hotelRank}
+                        onChange={handleChange}
+                        min="1"
+                        max="5"
+                        className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="1-5 stars"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-foreground mb-2">
+                        Number of Rooms
+                      </label>
+                      <input
+                        type="number"
+                        name="numberOfRooms"
+                        value={formData.numberOfRooms}
+                        onChange={handleChange}
+                        min="1"
+                        className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="Total rooms"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

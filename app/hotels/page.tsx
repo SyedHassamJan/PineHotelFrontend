@@ -23,6 +23,8 @@ interface Hotel {
   description?: string
   status: string
   images?: string[]
+  hotelRank?: number
+  numberOfRooms?: number
   rooms?: Room[]
 }
 
@@ -34,6 +36,8 @@ interface HotelCardProps {
   price: number
   rating?: number
   reviews?: number
+  hotelRank?: number
+  numberOfRooms?: number
 }
 
 
@@ -82,6 +86,8 @@ export default function HotelsPage() {
               price: Math.round(avgPrice),
               rating: 4.5 + Math.random() * 0.4,
               reviews: Math.floor(Math.random() * 300) + 50,
+              hotelRank: hotel.hotelRank,
+              numberOfRooms: hotel.numberOfRooms,
             }
           } catch (error) {
             console.error(`Error fetching rooms for hotel ${hotel.id}:`, error)
@@ -93,6 +99,8 @@ export default function HotelsPage() {
               price: 0,
               rating: 4.5 + Math.random() * 0.4,
               reviews: Math.floor(Math.random() * 300) + 50,
+              hotelRank: hotel.hotelRank,
+              numberOfRooms: hotel.numberOfRooms,
             }
           }
         })

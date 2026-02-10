@@ -42,7 +42,11 @@ export default function HotelOwnerLoginPage() {
       // Store token and user info
       localStorage.setItem('access_token', data.access_token)
       localStorage.setItem('user', JSON.stringify(data.user))
-      localStorage.setItem('hotelOwnerAuth', JSON.stringify({ email: data.user.email }))
+      localStorage.setItem('hotelOwnerAuth', JSON.stringify({ 
+        email: data.user.email,
+        id: data.user.id,
+        role: data.user.role
+      }))
       
       // Redirect to hotel owner dashboard
       router.push("/admin/dashboard")

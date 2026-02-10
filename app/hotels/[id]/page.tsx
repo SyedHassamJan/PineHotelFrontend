@@ -25,6 +25,7 @@ interface Room {
   maxGuests: number
   quantity: number
   bedType: string
+  roomFloor?: string
   price: string
   images: string[]
   amenities: Amenity[]
@@ -43,6 +44,8 @@ interface Hotel {
   description?: string
   status: string
   images?: string[]
+  hotelRank?: number
+  numberOfRooms?: number
 }
 
 export default function HotelDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -307,6 +310,30 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                       </p>
                     </div>
                   </div>
+                  {hotel.hotelRank && (
+                    <>
+                      <Separator />
+                      <div className="flex items-start gap-3">
+                        <Star className="h-5 w-5 mt-0.5 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">Hotel Rank</p>
+                          <p className="text-sm text-muted-foreground">{'⭐'.repeat(hotel.hotelRank)}</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {hotel.numberOfRooms && (
+                    <>
+                      <Separator />
+                      <div className="flex items-start gap-3">
+                        <Bed className="h-5 w-5 mt-0.5 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">Total Rooms</p>
+                          <p className="text-sm text-muted-foreground">{hotel.numberOfRooms}</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -331,7 +358,7 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                       <div className="relative h-48 md:h-full">
                         <Image
                           src={room.images?.[0] || '/placeholder-room.jpg'}
-                          alt={room.name}
+                          alt={room.roomType}
                           fill
                           className="object-cover"
                           onError={(e) => {
@@ -367,6 +394,12 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                             <Bed className="h-4 w-4" />
                             <span>{room.bedType}</span>
                           </div>
+                          {room.roomFloor && (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <MapPin className="h-4 w-4" />
+                              <span>Floor {room.roomFloor}</span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-1 text-sm text-muted-foreground">
                             <DollarSign className="h-4 w-4" />
                             <span>{room.quantity} rooms available</span>

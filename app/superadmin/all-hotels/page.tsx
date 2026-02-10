@@ -18,6 +18,8 @@ interface Hotel {
   status: string
   images: string[]
   role: string
+  hotelRank?: number
+  numberOfRooms?: number
   createdAt: string
 }
 
@@ -300,7 +302,7 @@ export default function AllHotelsPage() {
                         <p className="text-sm text-muted-foreground line-clamp-2">{hotel.description}</p>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
                         <div>
                           <p className="text-xs text-muted-foreground">Address</p>
                           <p className="text-sm font-medium">{hotel.address}</p>
@@ -322,6 +324,18 @@ export default function AllHotelsPage() {
                             {roomCounts[hotel.id] !== undefined ? roomCounts[hotel.id] : '...'}
                           </p>
                         </div>
+                        {hotel.hotelRank && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">Rank</p>
+                            <p className="text-sm font-medium">{'⭐'.repeat(hotel.hotelRank)}</p>
+                          </div>
+                        )}
+                        {hotel.numberOfRooms && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">Total Rooms</p>
+                            <p className="text-sm font-medium">{hotel.numberOfRooms}</p>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex gap-2">
