@@ -8,6 +8,8 @@ import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
+//tour page
+
 interface Tour {
   id: string
   title: string
