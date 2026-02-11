@@ -45,9 +45,10 @@ interface Tour {
   includes: string[]
   excludes: string[]
   cardImages: string[]
-  status: string // 'DRAFT' | 'PUBLISHED'
   createdAt: string
   updatedAt: string
+  tourStartDate?: string
+  tourEndDate?: string
 }
 
 function ToursContent() {
@@ -329,9 +330,7 @@ function ToursContent() {
                       No Image
                     </div>
                   )}
-                  {tour.status === 'PUBLISHED' && (
-                     <Badge className="absolute top-2 right-2 bg-green-500 hover:bg-green-600">Published</Badge>
-                  )}
+
                 </div>
                 <CardHeader className="p-4 pb-2">
                   <div className="flex justify-between items-start gap-2">
@@ -348,6 +347,16 @@ function ToursContent() {
                     <DollarSign className="h-4 w-4 mr-2 text-primary" />
                     ${tour.pricePerPerson} / person
                   </div>
+                  {(tour.tourStartDate || tour.tourEndDate) && (
+                    <div className="flex items-center text-muted-foreground text-xs mt-2 pt-2 border-t">
+                      <Calendar className="h-3 w-3 mr-2" />
+                      <span>
+                        {tour.tourStartDate ? new Date(tour.tourStartDate).toLocaleDateString() : 'N/A'} 
+                        {' - '} 
+                        {tour.tourEndDate ? new Date(tour.tourEndDate).toLocaleDateString() : 'N/A'}
+                      </span>
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter className="p-4 pt-0 gap-2 border-t bg-muted/10 mt-auto p-4">
                   <Button variant="outline" size="sm" className="flex-1" onClick={() => router.push(`/superadmin/tours/${tour.id}`)}>
@@ -369,11 +378,6 @@ function ToursContent() {
            <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                  <DialogTitle className="text-2xl">{selectedTour?.title}</DialogTitle>
-                 {selectedTour?.status && (
-                    <Badge className={selectedTour.status === 'PUBLISHED' ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-500 hover:bg-gray-600'}>
-                       {selectedTour.status}
-                    </Badge>
-                 )}
               </DialogHeader>
               <div className="space-y-6">
                  {/* Images */}
@@ -394,6 +398,24 @@ function ToursContent() {
                                 />
                              )
                           })}
+                       </div>
+                    </div>
+                 )}
+
+                 {/* Tour Dates */}
+                 {(selectedTour?.tourStartDate || selectedTour?.tourEndDate) && (
+                    <div className="grid grid-cols-2 gap-4 text-sm bg-muted/30 p-3 rounded-lg border">
+                       <div>
+                          <span className="font-semibold block text-primary mb-1">Start Date</span>
+                          <span className="font-medium">
+                             {selectedTour.tourStartDate ? new Date(selectedTour.tourStartDate).toLocaleDateString() : 'N/A'}
+                          </span>
+                       </div>
+                       <div>
+                          <span className="font-semibold block text-primary mb-1">End Date</span>
+                          <span className="font-medium">
+                             {selectedTour.tourEndDate ? new Date(selectedTour.tourEndDate).toLocaleDateString() : 'N/A'}
+                          </span>
                        </div>
                     </div>
                  )}
@@ -440,6 +462,24 @@ function ToursContent() {
                           {selectedTour.locations.map((loc, idx) => (
                              <Badge key={idx} variant="outline" className="text-sm">{loc}</Badge>
                           ))}
+                       </div>
+                    </div>
+                 )}
+
+                 {/* Tour Dates */}
+                 {(selectedTour?.tourStartDate || selectedTour?.tourEndDate) && (
+                    <div className="grid grid-cols-2 gap-4 text-sm bg-muted/30 p-3 rounded-lg border">
+                       <div>
+                          <span className="font-semibold block text-primary mb-1">Start Date</span>
+                          <span className="font-medium">
+                             {selectedTour.tourStartDate ? new Date(selectedTour.tourStartDate).toLocaleDateString() : 'N/A'}
+                          </span>
+                       </div>
+                       <div>
+                          <span className="font-semibold block text-primary mb-1">End Date</span>
+                          <span className="font-medium">
+                             {selectedTour.tourEndDate ? new Date(selectedTour.tourEndDate).toLocaleDateString() : 'N/A'}
+                          </span>
                        </div>
                     </div>
                  )}

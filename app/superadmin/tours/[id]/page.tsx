@@ -35,9 +35,10 @@ interface TourDetails {
   includes: string[]
   excludes: string[]
   cardImages: string[]
-  status: string
   createdAt: string
   updatedAt: string
+  tourStartDate?: string
+  tourEndDate?: string
 }
 
 export default function TourDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -145,9 +146,6 @@ export default function TourDetailPage({ params }: { params: Promise<{ id: strin
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Badge className={tour.status === 'PUBLISHED' ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-500 hover:bg-gray-600'}>
-              {tour.status}
-            </Badge>
             <Button variant="outline" onClick={() => router.push(`/superadmin/tours/${tour.id}/edit`)}>
               <Edit className="h-4 w-4 mr-2" /> Edit
             </Button>
@@ -230,6 +228,22 @@ export default function TourDetailPage({ params }: { params: Promise<{ id: strin
                     <span className="text-sm font-semibold">Duration</span>
                   </div>
                   <p className="text-lg font-bold">{tour.durationDays}D / {tour.durationNights}N</p>
+                </div>
+                
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 text-primary mb-1">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm font-semibold">Start Date</span>
+                  </div>
+                  <p className="text-lg font-bold">{tour.tourStartDate ? new Date(tour.tourStartDate).toLocaleDateString() : 'N/A'}</p>
+                </div>
+
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 text-primary mb-1">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm font-semibold">End Date</span>
+                  </div>
+                  <p className="text-lg font-bold">{tour.tourEndDate ? new Date(tour.tourEndDate).toLocaleDateString() : 'N/A'}</p>
                 </div>
               </div>
 

@@ -33,7 +33,8 @@ interface TourData {
   includes: string[]
   excludes: string[]
   cardImages: string[]
-  status: string
+  tourStartDate?: string
+  tourEndDate?: string
   createdAt: string
   updatedAt: string
 }
@@ -52,7 +53,8 @@ export default function EditTourPage({ params }: { params: Promise<{ id: string 
     durationNights: "",
     city: "",
     pricePerPerson: "",
-    status: "DRAFT"
+    tourStartDate: "",
+    tourEndDate: ""
   })
   
   const [locations, setLocations] = useState<string[]>([""])
@@ -79,7 +81,8 @@ export default function EditTourPage({ params }: { params: Promise<{ id: string 
             durationNights: data.durationNights?.toString() || "",
             city: data.city || "",
             pricePerPerson: data.pricePerPerson?.toString() || "",
-            status: data.status || "DRAFT"
+            tourStartDate: data.tourStartDate ? new Date(data.tourStartDate).toISOString().split('T')[0] : "",
+            tourEndDate: data.tourEndDate ? new Date(data.tourEndDate).toISOString().split('T')[0] : ""
           })
           setLocations(data.locations && data.locations.length > 0 ? data.locations : [""])
           setIncludes(data.includes && data.includes.length > 0 ? data.includes : [""])
@@ -150,10 +153,11 @@ export default function EditTourPage({ params }: { params: Promise<{ id: string 
       if (formData.shortDescription) data.append('shortDescription', formData.shortDescription)
       if (formData.description) data.append('description', formData.description)
       if (formData.city) data.append('city', formData.city)
-      if (formData.status) data.append('status', formData.status)
       if (formData.pricePerPerson) data.append('pricePerPerson', formData.pricePerPerson)
       if (formData.durationDays) data.append('durationDays', formData.durationDays)
       if (formData.durationNights) data.append('durationNights', formData.durationNights)
+      if (formData.tourStartDate) data.append('tourStartDate', formData.tourStartDate)
+      if (formData.tourEndDate) data.append('tourEndDate', formData.tourEndDate)
 
       // Arrays - filter out empty strings and join
       const locationsArray = locations.filter(item => item.trim())
@@ -241,18 +245,6 @@ export default function EditTourPage({ params }: { params: Promise<{ id: string 
                   <Label htmlFor="city">Main City</Label>
                   <Input id="city" name="city" value={formData.city} onChange={handleInputChange} placeholder="e.g. Swat" />
                 </div>
-                <div className="grid gap-2">
-                   <Label htmlFor="status">Status</Label>
-                   <Select value={formData.status} onValueChange={(val) => handleSelectChange('status', val)}>
-                      <SelectTrigger>
-                         <SelectValue placeholder="Select Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                         <SelectItem value="DRAFT">Draft</SelectItem>
-                         <SelectItem value="PUBLISHED">Published</SelectItem>
-                      </SelectContent>
-                   </Select>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -274,6 +266,37 @@ export default function EditTourPage({ params }: { params: Promise<{ id: string 
                    <div className="grid gap-2">
                       <Label htmlFor="durationNights">Duration (Nights)</Label>
                       <Input id="durationNights" name="durationNights" type="number" value={formData.durationNights} onChange={handleInputChange} />
+                   </div>
+                </div>
+             </CardContent>
+
+          </Card>
+
+          <Card>
+             <CardHeader>
+                <CardTitle>Schedule</CardTitle>
+             </CardHeader>
+             <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="grid gap-2">
+                      <Label htmlFor="tourStartDate">Start Date</Label>
+                      <Input 
+                         type="date" 
+                         id="tourStartDate" 
+                         name="tourStartDate" 
+                         value={formData.tourStartDate} 
+                         onChange={handleInputChange} 
+                      />
+                   </div>
+                   <div className="grid gap-2">
+                      <Label htmlFor="tourEndDate">End Date</Label>
+                      <Input 
+                         type="date" 
+                         id="tourEndDate" 
+                         name="tourEndDate" 
+                         value={formData.tourEndDate} 
+                         onChange={handleInputChange} 
+                      />
                    </div>
                 </div>
              </CardContent>

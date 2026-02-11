@@ -1,88 +1,77 @@
-import { Star, Globe } from "lucide-react"
+import { Globe } from "lucide-react"
 import Link from "next/link"
+import { GuideBookingModal } from "./guide-booking-modal"
 
 interface GuideCardProps {
   id: string
   name: string
   image: string
   languages: string[]
-  experience: number
-  hourlyRate: number
-  dailyRate: number
-  rating: number
-  reviews: number
+  experience: number | string
+  dailyRate: number | string
 }
 
 export function GuideCard({
   id,
   name,
   image,
-  languages,
+  languages = [],
   experience,
-  hourlyRate,
   dailyRate,
-  rating,
-  reviews,
 }: GuideCardProps) {
   return (
-    <Link href={`/guides/${id}`}>
-      <div className="group bg-card rounded-lg overflow-hidden border border-border hover:shadow-lg transition-all duration-300 cursor-pointer animate-fadeInUp">
-        {/* Image */}
-        <div className="relative h-56 overflow-hidden bg-muted">
-          <img
-            src={image || "/placeholder.svg"}
-            alt={name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-          />
-        </div>
-
-        {/* Content */}
-        <div className="p-4">
-          <h3 className="text-lg font-semibold text-foreground mb-2">{name}</h3>
-
-          {/* Rating */}
-          <div className="flex items-center gap-2 mb-3">
-            <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 fill-secondary text-secondary" />
-              <span className="font-semibold text-sm text-foreground">{rating.toFixed(1)}</span>
-            </div>
-            <span className="text-muted-foreground text-sm">({reviews})</span>
-          </div>
-
-          {/* Languages */}
-          <div className="flex items-start gap-2 mb-3">
-            <Globe className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-            <div className="flex flex-wrap gap-1">
-              {languages.map((lang) => (
-                <span key={lang} className="text-xs bg-muted text-foreground px-2 py-1 rounded">
-                  {lang}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Experience */}
-          <p className="text-sm text-muted-foreground mb-4">
-            <span className="font-semibold text-foreground">{experience}</span> years experience
-          </p>
-
-          {/* Pricing */}
-          <div className="space-y-2 mb-4 pb-4 border-b border-border">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Hourly Rate</span>
-              <span className="text-sm font-semibold text-foreground">${hourlyRate}/hr</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Daily Rate</span>
-              <span className="text-sm font-semibold text-foreground">${dailyRate}/day</span>
-            </div>
-          </div>
-
-          <button className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:bg-primary/90 transition text-sm font-semibold">
-            Book Guide
-          </button>
-        </div>
+    <div className="group bg-card rounded-xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 flex flex-col h-full">
+      {/* Image */}
+      <div className="relative h-64 overflow-hidden bg-muted">
+        <img
+          src={image || "/placeholder.svg"}
+          alt={name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
       </div>
-    </Link>
+
+      {/* Content */}
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className="text-xl font-bold text-foreground mb-1">{name}</h3>
+
+
+        {/* Languages */}
+        <div className="flex items-center gap-2 mb-3">
+          <Globe className="w-4 h-4 text-muted-foreground" />
+          <div className="flex flex-wrap gap-1.5">
+            {languages.slice(0, 3).map((lang, idx) => (
+              <span key={idx} className="text-[11px] bg-secondary/50 text-secondary-foreground font-medium px-2 py-0.5 rounded">
+                {lang}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Experience */}
+        <p className="text-sm text-muted-foreground mb-6">
+          {experience || 0} years experience
+        </p>
+
+        {/* Pricing */}
+        <div className="space-y-2 mb-6 mt-auto">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-muted-foreground font-medium">Daily Rate</span>
+            <span className="font-bold text-foreground">
+              {dailyRate ? `$${dailyRate}/day` : 'N/A'}
+            </span>
+          </div>
+        </div>
+
+        <GuideBookingModal 
+          guideId={id} 
+          guideName={name}
+          trigger={
+            <button className="w-full bg-[#006951] text-white py-3 rounded-lg hover:bg-[#005a46] transition-colors text-sm font-bold">
+              Book Guide
+            </button>
+          }
+        />
+      </div>
+    </div>
   )
 }

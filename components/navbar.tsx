@@ -2,64 +2,15 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { ChevronDown, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const [carRentalOption, setCarRentalOption] = useState<string | null>(null)
 
-  const destinations = [
-    "Hunza Valley",
-    "Skardu",
-    "Fairy Meadows",
-    "Naran",
-    "Kaghan Valley",
-    "Swat Valley",
-    "Kalam",
-    "Gilgit",
-    "Chitral",
-    "Shogran",
-    "Neelum Valley",
-    "Astore Valley",
-    "Deosai Plains",
-    "Khunjerab Pass",
-    "Phandar Valley",
-    "Basho Valley",
-    "Ratti Gali Lake",
-    "Saif-ul-Malook Lake",
-    "Attabad Lake",
-    "Rama Meadows",
-    "Murree",
-    "Nathia Gali",
-    "Ayubia",
-    "Patriata (New Murree)",
-    "Ziarat",
-    "Malam Jabba",
-  ]
 
-  const cars = [
-    "Honda BR-V",
-    "Coaster Saloon (22 Seats)",
-    "Toyota Corolla GLi",
-    "Toyota Grand Cabin (13 Seater)",
-    "Jeeps",
-    "Toyota Revo",
-    "Land Cruiser V8 ZX",
-  ]
 
-  const carRentalOptions = [
-    {
-      id: "per-day",
-      label: "Per-Day Rental",
-      description: "Select days and rent a car",
-    },
-    {
-      id: "package",
-      label: "Add Car to Package",
-      description: "Auto-add to tour/hotel booking",
-    },
-  ]
+
+
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-background/95 border-b border-border backdrop-blur-sm">
@@ -93,129 +44,19 @@ export function Navbar() {
             Home
           </Link>
 
-          {/* Hotels Dropdown */}
-          <div
-            className="relative group"
-            onMouseEnter={() => setActiveDropdown("hotels")}
-            onMouseLeave={() => setActiveDropdown(null)}
-          >
-            <button className="flex items-center gap-1 text-foreground hover:text-primary transition text-sm font-medium">
-              Hotels <ChevronDown className="w-4 h-4" />
-            </button>
-            {activeDropdown === "hotels" && (
-              <div className="absolute left-0 mt-0 w-48 bg-card border border-border rounded-lg shadow-lg animate-slideInDown">
-                <Link href="/hotels" className="block px-4 py-2 hover:bg-muted text-foreground transition text-sm">
-                  Browse Hotels
-                </Link>
-                <Link
-                  href="/hotels/featured"
-                  className="block px-4 py-2 hover:bg-muted text-foreground transition text-sm"
-                >
-                  Featured Hotels
-                </Link>
-              </div>
-            )}
-          </div>
+          <Link href="/hotels" className="text-foreground hover:text-primary transition text-sm font-medium">
+            Hotels
+          </Link>
 
-          {/* Tours Dropdown */}
-          <div
-            className="relative group"
-            onMouseEnter={() => setActiveDropdown("tours")}
-            onMouseLeave={() => setActiveDropdown(null)}
-          >
-            <button className="flex items-center gap-1 text-foreground hover:text-primary transition text-sm font-medium">
-              Tours <ChevronDown className="w-4 h-4" />
-            </button>
-            {activeDropdown === "tours" && (
-              <div className="absolute left-0 mt-0 w-48 bg-card border border-border rounded-lg shadow-lg animate-slideInDown">
-                <Link href="/tours" className="block px-4 py-2 hover:bg-muted text-foreground transition text-sm">
-                  Tour Packages
-                </Link>
-                <Link href="/create-tour" className="block px-4 py-2 hover:bg-muted text-foreground transition text-sm">
-                  Create Your Tour
-                </Link>
-              </div>
-            )}
-          </div>
+          <Link href="/tours" className="text-foreground hover:text-primary transition text-sm font-medium">
+            Tours
+          </Link>
 
-          {/* Destinations Dropdown */}
-          <div
-            className="relative group"
-            onMouseEnter={() => setActiveDropdown("destinations")}
-            onMouseLeave={() => setActiveDropdown(null)}
-          >
-            <button className="flex items-center gap-1 text-foreground hover:text-primary transition text-sm font-medium">
-              Destinations <ChevronDown className="w-4 h-4" />
-            </button>
-            {activeDropdown === "destinations" && (
-              <div className="absolute left-0 mt-0 w-56 max-h-96 overflow-y-auto bg-card border border-border rounded-lg shadow-lg animate-slideInDown">
-                {destinations.map((destination) => (
-                  <Link
-                    key={destination}
-                    href={`/destinations/${destination.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="block px-4 py-2 hover:bg-muted text-foreground transition text-sm"
-                  >
-                    {destination}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+          <Link href="/cars" className="text-foreground hover:text-primary transition text-sm font-medium">
+            Cars
+          </Link>
 
-          {/* Cars Dropdown - CHANGED */}
-          <div
-            className="relative group"
-            onMouseEnter={() => setActiveDropdown("cars")}
-            onMouseLeave={() => {
-              setActiveDropdown(null)
-              setCarRentalOption(null)
-            }}
-          >
-            <button className="flex items-center gap-1 text-foreground hover:text-primary transition text-sm font-medium">
-              Cars <ChevronDown className="w-4 h-4" />
-            </button>
-            {activeDropdown === "cars" && (
-              <div className="absolute left-0 mt-0 w-64 bg-card border border-border rounded-lg shadow-lg animate-slideInDown">
-                {!carRentalOption ? (
-                  <>
-                    {carRentalOptions.map((option) => (
-                      <button
-                        key={option.id}
-                        onClick={() => setCarRentalOption(option.id)}
-                        className="w-full text-left px-4 py-3 hover:bg-muted text-foreground transition border-b border-border last:border-b-0"
-                      >
-                        <div className="font-medium text-sm">{option.label}</div>
-                        <div className="text-xs text-muted-foreground">{option.description}</div>
-                      </button>
-                    ))}
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => setCarRentalOption(null)}
-                      className="w-full text-left px-4 py-2 hover:bg-muted text-foreground transition text-sm border-b border-border font-medium"
-                    >
-                      ← Back
-                    </button>
-                    {cars.map((car) => (
-                      <button
-                        key={car}
-                        onClick={() => {
-                          setCarRentalOption(null)
-                          setActiveDropdown(null)
-                        }}
-                        className="w-full text-left px-4 py-2 hover:bg-muted text-foreground transition text-sm"
-                      >
-                        {car}
-                      </button>
-                    ))}
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-
-          <Link href="/guides" className="text-foreground hover:text-primary transition text-sm font-medium">
+          <Link href="/tour-guides" className="text-foreground hover:text-primary transition text-sm font-medium">
             Guides
           </Link>
 
@@ -240,14 +81,11 @@ export function Navbar() {
             <Link href="/tours" className="block py-2 text-foreground hover:text-primary text-sm">
               Tours
             </Link>
-            <Link href="/guides" className="block py-2 text-foreground hover:text-primary text-sm">
+            <Link href="/tour-guides" className="block py-2 text-foreground hover:text-primary text-sm">
               Guides
             </Link>
             <Link href="/about" className="block py-2 text-foreground hover:text-primary text-sm">
               About
-            </Link>
-            <Link href="/destinations" className="block py-2 text-foreground hover:text-primary text-sm">
-              Destinations
             </Link>
             <Link href="/cars" className="block py-2 text-foreground hover:text-primary text-sm">
               Cars

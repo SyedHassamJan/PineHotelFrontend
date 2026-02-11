@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { MapPin, Search, Loader2 } from "lucide-react"
+import { MapPin, Search, Loader2, Calendar } from "lucide-react"
 import Link from "next/link"
 
 import { Input } from "@/components/ui/input"
@@ -27,6 +27,8 @@ interface Tour {
   status: string
   createdAt: string
   updatedAt: string
+  tourStartDate?: string
+  tourEndDate?: string
 }
 
 export default function ToursPage() {
@@ -49,15 +51,15 @@ export default function ToursPage() {
       if (response.ok) {
         const data = await response.json()
         const toursData = Array.isArray(data) ? data : (data.data || [])
-        // Filter only published tours
-        setTours(toursData.filter((tour: Tour) => tour.status === 'PUBLISHED'))
+        // Show all tours from backend to match landing page
+        setTours(toursData)
       }
     } catch (error) {
       console.error("Error fetching tours:", error)
     } finally {
       setLoading(false)
     }
-  }
+  } 
 
   const filteredTours = tours.filter(tour => 
     tour.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -137,6 +139,16 @@ export default function ToursPage() {
                         {tour.durationDays} Days / {tour.durationNights} Nights
                       </div>
                     )}
+                    {(tour.tourStartDate || tour.tourEndDate) && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground pt-3 border-t mt-3">
+                        <Calendar className="h-4 w-4 flex-shrink-0" />
+                        <span className="line-clamp-1">
+                          {tour.tourStartDate ? new Date(tour.tourStartDate).toLocaleDateString() : 'N/A'} 
+                          {' - '} 
+                          {tour.tourEndDate ? new Date(tour.tourEndDate).toLocaleDateString() : 'N/A'}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between pt-3 border-t">
                       <div>
                         <span className="text-xs text-muted-foreground block">From</span>
@@ -145,9 +157,9 @@ export default function ToursPage() {
                       </div>
                       <Link
                         href={`/tours/${tour.id}`}
-                        className="px-5 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition text-sm font-semibold"
+                        className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition text-sm font-medium"
                       >
-                        View Details
+                        Book Now
                       </Link>
                     </div>
                   </div>

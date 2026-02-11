@@ -11,8 +11,24 @@ import {
   DollarSign,
   TrendingUp,
   UserCheck,
-  Clock
+  Clock,
+  Compass,
+  Car,
+  CalendarCheck
 } from "lucide-react"
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer, 
+  PieChart, 
+  Pie, 
+  Cell 
+} from 'recharts'
 
 interface Hotel {
   id: string
@@ -29,10 +45,36 @@ interface Hotel {
   createdAt: string
 }
 
+interface SummaryStats {
+  totalHotels: number;
+  totalTours: number;
+  totalGuides: number;
+  totalCars: number;
+}
+
+interface MonthlyBreakdown {
+  month: string;
+  hotelRevenue: number;
+  hotelBookings: number;
+  tourRevenue: number;
+  tourBookings: number;
+  guideRevenue: number;
+  guideBookings: number;
+  carRevenue: number;
+  carBookings: number;
+  totalRevenue: number;
+}
+
+interface SummaryResponse {
+  stats: SummaryStats;
+  monthlyBreakdown: MonthlyBreakdown[];
+}
+
 export default function SuperAdminDashboardPage() {
   const router = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [hotels, setHotels] = useState<Hotel[]>([])
+  const [summary, setSummary] = useState<SummaryResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [userName, setUserName] = useState("")
 
@@ -61,9 +103,32 @@ export default function SuperAdminDashboardPage() {
         setUserName(auth.email || "SuperAdmin")
       }
       
-      fetchHotels()
+      fetchAllData()
     }
   }, [router])
+
+  const fetchAllData = async () => {
+    setIsLoading(true)
+    await Promise.all([
+      fetchHotels(),
+      fetchSummary()
+    ])
+    setIsLoading(false)
+  }
+
+  const fetchSummary = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
+      const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+      const response = await fetch(`${normalizedBaseUrl}api/summary`)
+      if (response.ok) {
+        const data = await response.json()
+        setSummary(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch summary:', error)
+    }
+  }
 
   const fetchHotels = async () => {
     try {
@@ -80,8 +145,6 @@ export default function SuperAdminDashboardPage() {
       }
     } catch (error) {
       console.error('Failed to fetch hotels:', error)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -101,12 +164,68 @@ export default function SuperAdminDashboardPage() {
   const approvedHotels = hotels.filter(h => h.status === 'approved')
   const pendingHotels = hotels.filter(h => h.status === 'pending')
 
-  const stats = [
-    { label: "Total Users", value: totalUsers.toString(), icon: Users, color: "bg-primary/10 text-primary" },
-    { label: "Total Hotels", value: approvedHotels.length.toString(), icon: Building2, color: "bg-secondary/10 text-secondary" },
-    { label: "Pending Approvals", value: pendingHotels.length.toString(), icon: Clock, color: "bg-orange-500/10 text-orange-500" },
-    { label: "Total Revenue", value: "$2.4M", icon: DollarSign, color: "bg-green-500/10 text-green-500" },
+  const totalRevenue = summary?.monthlyBreakdown.reduce((sum, m) => sum + m.totalRevenue, 0) || 0
+  const totalHotelRevenue = summary?.monthlyBreakdown.reduce((sum, m) => sum + m.hotelRevenue, 0) || 0
+  const totalTourRevenue = summary?.monthlyBreakdown.reduce((sum, m) => sum + m.tourRevenue, 0) || 0
+  const totalGuideRevenue = summary?.monthlyBreakdown.reduce((sum, m) => sum + m.guideRevenue, 0) || 0
+  const totalCarRevenue = summary?.monthlyBreakdown.reduce((sum, m) => sum + m.carRevenue, 0) || 0
+
+  const statsCards = [
+    { 
+      label: "Hotels", 
+      count: summary?.stats.totalHotels || 0, 
+      revenue: totalHotelRevenue, 
+      icon: Building2, 
+      color: "bg-teal-500/10 text-teal-600" 
+    },
+    { 
+      label: "Tours", 
+      count: summary?.stats.totalTours || 0, 
+      revenue: totalTourRevenue, 
+      icon: Compass, 
+      color: "bg-blue-500/10 text-blue-600" 
+    },
+    { 
+      label: "Guides", 
+      count: summary?.stats.totalGuides || 0, 
+      revenue: totalGuideRevenue, 
+      icon: Users, 
+      color: "bg-purple-500/10 text-purple-600" 
+    },
+    { 
+      label: "Cars", 
+      count: summary?.stats.totalCars || 0, 
+      revenue: totalCarRevenue, 
+      icon: Car, 
+      color: "bg-orange-500/10 text-orange-600" 
+    },
   ]
+
+  const COLORS = ['#0f766e', '#3b82f6', '#a855f7', '#f97316'];
+  
+  const pieData = [
+    { name: 'Hotels', value: summary?.stats.totalHotels || 0 },
+    { name: 'Tours', value: summary?.stats.totalTours || 0 },
+    { name: 'Guides', value: summary?.stats.totalGuides || 0 },
+    { name: 'Cars', value: summary?.stats.totalCars || 0 },
+  ]
+
+  const revenueData = summary?.monthlyBreakdown.map(m => ({
+    month: m.month,
+    revenue: m.totalRevenue,
+    hotels: m.hotelRevenue,
+    tours: m.tourRevenue,
+    guides: m.guideRevenue,
+    cars: m.carRevenue
+  })) || []
+
+  const bookingData = summary?.monthlyBreakdown.map(m => ({
+    month: m.month,
+    hotels: m.hotelBookings,
+    tours: m.tourBookings,
+    guides: m.guideBookings,
+    cars: m.carBookings
+  })) || []
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString)
@@ -172,22 +291,148 @@ export default function SuperAdminDashboardPage() {
 
         {/* Dashboard Content */}
         <div className="p-6">
+          {/* Main Revenue Card */}
+          <div className="bg-gradient-to-r from-teal-600 to-teal-800 rounded-xl p-8 mb-8 text-white shadow-lg relative overflow-hidden">
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-2 opacity-80 text-sm font-medium uppercase tracking-wider">
+                <DollarSign className="w-4 h-4" />
+                Total Platform Revenue
+              </div>
+              <h2 className="text-5xl font-extrabold mb-4 tracking-tight">
+                ${totalRevenue.toLocaleString()}
+              </h2>
+              <div className="flex items-center gap-6 mt-6 pt-6 border-t border-white/10">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-400" />
+                  <span className="text-sm opacity-80">Platform Active</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-400" />
+                  <span className="text-sm font-semibold text-green-400">+12% Growth</span>
+                </div>
+              </div>
+            </div>
+            {/* Background Decoration */}
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 opacity-10">
+              <ShieldCheck className="w-64 h-64" />
+            </div>
+          </div>
+
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {stats.map((stat, index) => {
+            {statsCards.map((stat, index) => {
               const Icon = stat.icon
               return (
-                <div key={index} className="bg-white dark:bg-gray-950 rounded-lg border p-6">
+                <div key={index} className="bg-white dark:bg-gray-950 rounded-lg border p-6 hover:shadow-md transition-shadow group">
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-lg ${stat.color}`}>
+                    <div className={`p-3 rounded-lg ${stat.color} group-hover:scale-110 transition-transform`}>
                       <Icon className="w-6 h-6" />
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold mb-1">{stat.value}</h3>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <div className="flex items-baseline justify-between mb-1">
+                    <h3 className="text-2xl font-bold">{stat.count}</h3>
+                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</span>
+                  </div>
+                  <div className="pt-3 border-t mt-3 flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Revenue</span>
+                    <span className="font-bold text-primary">${stat.revenue.toLocaleString()}</span>
+                  </div>
                 </div>
               )
             })}
+          </div>
+
+          {/* Revenue and Distribution Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Revenue Trend */}
+            <div className="lg:col-span-2 bg-white dark:bg-gray-950 rounded-lg border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-lg font-semibold">Revenue Trends</h2>
+                  <p className="text-sm text-muted-foreground">Monthly growth across all sectors</p>
+                </div>
+              </div>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={revenueData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="month" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                      formatter={(value: any) => [`$${value.toLocaleString()}`, '']}
+                    />
+                    <Legend iconType="circle" />
+                    <Bar dataKey="hotels" name="Hotels" fill="#0f766e" radius={[4, 4, 0, 0]} stackId="a" />
+                    <Bar dataKey="tours" name="Tours" fill="#3b82f6" radius={[4, 4, 0, 0]} stackId="a" />
+                    <Bar dataKey="guides" name="Guides" fill="#a855f7" radius={[4, 4, 0, 0]} stackId="a" />
+                    <Bar dataKey="cars" name="Cars" fill="#f97316" radius={[4, 4, 0, 0]} stackId="a" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Distribution Pie Chart */}
+            <div className="bg-white dark:bg-gray-950 rounded-lg border p-6">
+              <h2 className="text-lg font-semibold mb-6">Business Distribution</h2>
+              <div className="h-[250px] w-full relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">{summary?.stats.totalHotels! + summary?.stats.totalTours! + summary?.stats.totalGuides! + summary?.stats.totalCars!}</p>
+                    <p className="text-xs text-muted-foreground">Entries</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 space-y-2">
+                {pieData.map((item, index) => (
+                  <div key={item.name} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index] }} />
+                      <span className="text-muted-foreground">{item.name}</span>
+                    </div>
+                    <span className="font-semibold">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bookings Trend */}
+          <div className="bg-white dark:bg-gray-950 rounded-lg border p-6 mb-8">
+            <h2 className="text-lg font-semibold mb-6">Bookings Breakdown</h2>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={bookingData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <XAxis type="number" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis dataKey="month" type="category" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} width={80} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="hotels" name="Hotels" fill="#0f766e" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="tours" name="Tours" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="guides" name="Guides" fill="#a855f7" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="cars" name="Cars" fill="#f97316" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           {/* Main Grid */}

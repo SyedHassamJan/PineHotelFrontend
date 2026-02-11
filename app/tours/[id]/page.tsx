@@ -43,7 +43,6 @@ export default function TourDetailPage({ params }: { params: Promise<{ id: strin
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const [bookingData, setBookingData] = useState({
-    startDate: "",
     peopleCount: "",
     userName: "",
     userEmail: "",
@@ -93,7 +92,6 @@ export default function TourDetailPage({ params }: { params: Promise<{ id: strin
       
       const payload = {
         tourId: id,
-        startDate: bookingData.startDate,
         peopleCount: parseInt(bookingData.peopleCount),
         userName: bookingData.userName,
         userEmail: bookingData.userEmail,
@@ -113,7 +111,6 @@ export default function TourDetailPage({ params }: { params: Promise<{ id: strin
         toast.success("Booking request submitted successfully!")
         setIsBookingModalOpen(false)
         setBookingData({
-          startDate: "",
           peopleCount: "",
           userName: "",
           userEmail: "",
@@ -319,19 +316,6 @@ export default function TourDetailPage({ params }: { params: Promise<{ id: strin
             <DialogTitle>Book This Tour</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleBookingSubmit} className="space-y-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="startDate">Start Date <span className="text-red-500">*</span></Label>
-              <Input
-                id="startDate"
-                name="startDate"
-                type="date"
-                value={bookingData.startDate}
-                onChange={handleBookingInputChange}
-                required
-                min={new Date().toISOString().split('T')[0]}
-              />
-            </div>
-
             <div className="grid gap-2">
               <Label htmlFor="peopleCount">Number of People <span className="text-red-500">*</span></Label>
               <Input

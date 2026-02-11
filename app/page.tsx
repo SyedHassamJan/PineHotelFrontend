@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronDown, MapPin, Plane, Car, Search, Users, Bed } from "lucide-react"
+import { ChevronDown, MapPin, Plane, Car, Search, Users, Bed, Calendar } from "lucide-react"
 import { HotelCard } from "@/components/hotel-card"
 import { TourCard } from "@/components/tour-card"
 import { GuideCard } from "@/components/guide-card"
@@ -54,6 +54,8 @@ interface Tour {
   status: string
   createdAt: string
   updatedAt: string
+  tourStartDate?: string
+  tourEndDate?: string
 }
 
 const POPULAR_TOURS = [
@@ -292,6 +294,8 @@ export default function Home() {
   const [loadingCars, setLoadingCars] = useState(true)
   const [tours, setTours] = useState<Tour[]>([])
   const [loadingTours, setLoadingTours] = useState(true)
+  const [guides, setGuides] = useState<any[]>([])
+  const [loadingGuides, setLoadingGuides] = useState(true)
 
   useEffect(() => {
     // Set default dates
@@ -307,6 +311,7 @@ export default function Home() {
     fetchHotels()
     fetchCars()
     fetchTours()
+    fetchGuides()
   }, [])
 
   const handleSearch = () => {
@@ -404,6 +409,24 @@ export default function Home() {
       console.error('Error fetching hotels:', error)
     } finally {
       setLoadingHotels(false)
+    }
+  }
+
+  const fetchGuides = async () => {
+    try {
+      setLoadingGuides(true)
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
+      const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+      const response = await fetch(`${normalizedBaseUrl}api/tour-guides?limit=4`)
+      if (response.ok) {
+        const data = await response.json()
+        const guidesData = Array.isArray(data) ? data : (data.data || [])
+        setGuides(guidesData)
+      }
+    } catch (error) {
+      console.error("Error fetching guides:", error)
+    } finally {
+      setLoadingGuides(false)
     }
   }
 
@@ -744,6 +767,16 @@ export default function Home() {
                           {tour.durationDays} Days / {tour.durationNights} Nights
                         </div>
                       )}
+                      {(tour.tourStartDate || tour.tourEndDate) && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground pt-3 border-t mt-3">
+                          <Calendar className="h-4 w-4" />
+                          <span className="line-clamp-1">
+                            {tour.tourStartDate ? new Date(tour.tourStartDate).toLocaleDateString() : 'N/A'} 
+                            {' - '} 
+                            {tour.tourEndDate ? new Date(tour.tourEndDate).toLocaleDateString() : 'N/A'}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between pt-2 border-t">
                         <div>
                           <span className="text-xs text-muted-foreground">From</span>
@@ -864,20 +897,56 @@ export default function Home() {
         )}
       </section>
 
-      {/* Top Tour Guides */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <SectionHeader
           title="Top-Rated Guides"
           subtitle="Connect with expert local guides for unforgettable experiences"
           centered
         />
-        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-          {TOP_GUIDES.map((guide) => (
-            <div key={guide.id} className="flex-shrink-0 w-80">
-              <GuideCard {...guide} />
+        {loadingGuides ? (
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex-shrink-0 w-80 h-[500px] bg-muted animate-pulse rounded-lg" />
+            ))}
+          </div>
+        ) : guides.length > 0 ? (
+          <>
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+              {guides.slice(0, 4).map((guide) => {
+                const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
+                const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+                const imageUrl = guide.images && guide.images.length > 0 
+                  ? (guide.images[0].startsWith('http') ? guide.images[0] : `${normalizedBaseUrl}${guide.images[0]}`)
+                  : '/placeholder.svg'
+
+                return (
+                  <div key={guide.id} className="flex-shrink-0 w-80">
+                    <GuideCard 
+                      id={guide.id}
+                      name={guide.name}
+                      image={imageUrl}
+                      languages={guide.languages}
+                      experience={guide.experienceYears}
+                      dailyRate={guide.pricePerDay}
+                    />
+                  </div>
+                )
+              })}
             </div>
-          ))}
-        </div>
+            <div className="flex justify-center mt-8">
+              <Link
+                href="/tour-guides"
+                className="px-8 py-3 w-full sm:w-auto text-center border border-input bg-background hover:bg-accent hover:text-accent-foreground text-sm font-medium rounded-md transition-colors"
+              >
+                View All Guides
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">
+            No guides available at the moment
+          </div>
+        )}
       </section>
 
       {/* CTA Section - Book Now */}

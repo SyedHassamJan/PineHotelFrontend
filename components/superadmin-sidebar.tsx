@@ -60,20 +60,30 @@ const menuItems = [
     icon: MapPin,
   },
   {
-    title: "Tour Submissions",
-    href: "/superadmin/tour-submissions",
-    icon: MapPin,
+    title: "Tour Bookings",
+    href: "/superadmin/tour-bookings",
+    icon: Calendar,
   },
   {
-    title: "Guide Submissions",
-    href: "/superadmin/guide-submissions",
+    title: "Tour Guides",
+    href: "/superadmin/tour-guides",
     icon: UserCheck,
   },
+  // {
+  //   title: "Guide Submissions",
+  //   href: "/superadmin/guide-submissions",
+  //   icon: UserCheck,
+  // },
   {
-    title: "Settings",
-    href: "/superadmin/settings",
-    icon: Settings,
+    title: "Guide Bookings",
+    href: "/superadmin/guide-bookings",
+    icon: Calendar,
   },
+  // {
+  //   title: "Settings",
+  //   href: "/superadmin/settings",
+  //   icon: Settings,
+  // },
 ]
 
 export function SuperAdminSidebar() {
