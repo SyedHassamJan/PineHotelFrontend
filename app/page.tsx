@@ -297,7 +297,7 @@ export default function Home() {
   const [guides, setGuides] = useState<any[]>([])
   const [loadingGuides, setLoadingGuides] = useState(true)
   const [currentVideo, setCurrentVideo] = useState(0)
-  const videos = ["/vids/hero1.mp4", "/vids/hero2.mp4"]
+  const videos = ["/vids/hero1.mp4"]
   const [hoveredDestination, setHoveredDestination] = useState<string | null>(null)
 
   useEffect(() => {
@@ -456,16 +456,16 @@ export default function Home() {
     <div className="w-full">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Dual Video Background with Sequential Playback */}
+        {/* Video Background */}
         {videos.map((video, index) => (
           <video
             key={video}
             autoPlay
             muted
+            loop
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
               currentVideo === index ? "opacity-100" : "opacity-0"
             }`}
-            onEnded={() => setCurrentVideo((prev) => (prev + 1) % videos.length)}
             style={{ pointerEvents: currentVideo === index ? "auto" : "none" }}
           >
             <source src={video} type="video/mp4" />

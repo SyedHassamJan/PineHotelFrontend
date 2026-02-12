@@ -62,63 +62,67 @@ export default function SuperAdminLoginPage() {
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="w-full max-w-md px-4">
-        <div className="bg-card border border-border rounded-lg p-8 shadow-lg">
+    <div className="w-full min-h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100/30 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-teal-100/30 rounded-full blur-3xl" />
+      
+      <div className="w-full max-w-md px-4 relative z-10">
+        <div className="bg-white border-2 border-emerald-200 rounded-xl p-8 shadow-xl">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">P</span>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center shadow-md">
+                <span className="text-white font-bold text-xl">P</span>
               </div>
-              <span className="text-2xl font-bold text-foreground">Pine Travel</span>
+              <span className="text-2xl font-bold text-gray-800">Pine Travel</span>
             </div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">SuperAdmin Portal</h1>
-            <p className="text-muted-foreground">Sign in to access the superadmin dashboard</p>
+            <h1 className="text-3xl font-bold mb-2 text-gray-900">SuperAdmin Portal</h1>
+            <p className="text-slate-600 font-medium">Secure Access Control Center</p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-lg mb-6 text-sm">
+            <div className="bg-red-50 border-2 border-red-300 text-red-700 p-3 rounded-lg mb-6 text-sm font-medium">
               {error}
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5 mb-6">
+          <form onSubmit={handleSubmit} className="space-y-6 mb-6">
             {/* Email */}
-            <div>
-              <label className="block text-sm font-semibold text-foreground mb-2">SuperAdmin Email</label>
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">SuperAdmin Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-emerald-600" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="superadmin@travelhub.com"
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div>
-              <label className="block text-sm font-semibold text-foreground mb-2">Password</label>
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-emerald-600" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter superadmin password"
                   required
-                  className="w-full pl-10 pr-10 py-3 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="w-full pl-11 pr-12 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-emerald-600 hover:text-emerald-700 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -129,12 +133,12 @@ export default function SuperAdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-primary/90 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
             >
               {isLoading ? (
                 <>
                   <Loader className="w-5 h-5 animate-spin" />
-                  Signing in...
+                  Authenticating...
                 </>
               ) : (
                 "Sign In as SuperAdmin"
@@ -143,9 +147,9 @@ export default function SuperAdminLoginPage() {
           </form>
 
           {/* Back to Login Link */}
-          <p className="text-center text-muted-foreground">
+          <p className="text-center text-gray-600">
             Not a superadmin?{" "}
-            <Link href="/login" className="text-primary font-semibold hover:underline">
+            <Link href="/login" className="text-emerald-600 font-semibold hover:text-emerald-700 transition-colors hover:underline">
               Back to Login
             </Link>
           </p>

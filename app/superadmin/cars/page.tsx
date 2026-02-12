@@ -280,72 +280,79 @@ export default function CarsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cars.map((car) => (
-            <Card key={car.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative h-48 bg-muted">
+            <Card key={car.id} className="overflow-hidden hover:shadow-xl hover:border-primary/50 transition-all duration-300 group border-2">
+              <div className="relative h-56 bg-muted overflow-hidden">
                 {car.images && car.images.length > 0 ? (
                   <img 
                     src={car.images[0]} 
                     alt={car.name} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
-                    <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                    <ImageIcon className="h-12 w-12 text-muted-foreground" />
                   </div>
                 )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/0" />
                 {car.hasDriver && (
-                  <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                    <User className="w-3 h-3" /> With Driver
+                  <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-semibold px-3.5 py-2 rounded-full flex items-center gap-1.5 shadow-lg">
+                    <User className="w-3.5 h-3.5" /> Driver Available
                   </div>
                 )}
-              </div>
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl">{car.name}</CardTitle>
-                    <CardDescription>{car.model} • {car.city}</CardDescription>
+                <div className="absolute bottom-4 left-4 right-4 pb-1">
+                  <h3 className="text-white font-bold text-xl mb-2 drop-shadow-lg line-clamp-1">{car.name}</h3>
+                  <div className="flex items-center gap-2.5 text-white/95 text-sm flex-wrap">
+                    <span className="bg-white/25 backdrop-blur-sm px-2.5 py-1 rounded-full font-medium">{car.model}</span>
+                    <span className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                      <MapPin className="w-3.5 h-3.5" />
+                      {car.city}
+                    </span>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="pb-2 space-y-4">
-                <p className="text-sm text-muted-foreground line-clamp-2">{car.description}</p>
+              </div>
+              
+              <CardContent className="pt-5 pb-4 px-5 space-y-5">
+                <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed px-1">{car.description}</p>
                 
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="flex flex-col p-2 bg-muted/50 rounded-md">
-                     <span className="text-xs text-muted-foreground">Per Day</span>
-                     <span className="font-semibold">${car.pricePerDay}</span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="border-l-4 border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 pl-4 py-3 rounded-r-lg">
+                     <span className="text-xs text-muted-foreground font-medium block mb-1">Daily Rate</span>
+                     <span className="font-bold text-lg text-foreground">${car.pricePerDay}</span>
                   </div>
-                  <div className="flex flex-col p-2 bg-muted/50 rounded-md">
-                     <span className="text-xs text-muted-foreground">Place to Place</span>
-                     <span className="font-semibold">${car.pricePlaceToPlace}</span>
+                  <div className="border-l-4 border-green-500 bg-green-50/50 dark:bg-green-950/20 pl-4 py-3 rounded-r-lg">
+                     <span className="text-xs text-muted-foreground font-medium block mb-1">Point to Point</span>
+                     <span className="font-bold text-lg text-foreground">${car.pricePlaceToPlace}</span>
                   </div>
                 </div>
 
                 {car.hasDriver && car.driverInfo && (
-                  <div className="pt-2 border-t mt-2">
-                    <p className="text-xs font-semibold uppercase text-muted-foreground mb-2">Driver Info</p>
-                    <div className="space-y-1 text-sm">
+                  <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
+                    <p className="text-xs font-semibold uppercase text-muted-foreground mb-3 flex items-center gap-1.5">
+                      <User className="h-3.5 w-3.5" />
+                      Driver Details
+                    </p>
+                    <div className="space-y-2 text-sm">
                        <div className="flex items-center gap-2">
-                          <User className="h-3 w-3 text-muted-foreground" />
-                          <span>{car.driverInfo.name}</span>
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                          <span className="font-medium">{car.driverInfo.name}</span>
                        </div>
-                       <div className="flex items-center gap-2">
-                          <Phone className="h-3 w-3 text-muted-foreground" />
+                       <div className="flex items-center gap-2 text-muted-foreground">
+                          <Phone className="h-3.5 w-3.5" />
                           <span>{car.driverInfo.phone}</span>
                        </div>
                     </div>
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="flex justify-end gap-2 pt-2 border-t">
-                 <Button variant="outline" size="sm" onClick={() => handleViewClick(car)}>
-                    <Eye className="w-4 h-4 mr-2" /> View
+              <CardFooter className="flex justify-between gap-2 pt-4 pb-4 px-5 border-t bg-muted/30">
+                 <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewClick(car)}>
+                    <Eye className="w-4 h-4 mr-1.5" /> View
                  </Button>
-                 <Button variant="outline" size="sm" onClick={() => router.push(`/superadmin/cars/${car.id}`)}>
-                    <Edit className="w-4 h-4 mr-2" /> Edit
+                 <Button variant="outline" size="sm" className="flex-1" onClick={() => router.push(`/superadmin/cars/${car.id}`)}>
+                    <Edit className="w-4 h-4 mr-1.5" /> Edit
                  </Button>
-                 <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(car.id)}>
-                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                 <Button variant="destructive" size="sm" className="px-3" onClick={() => handleDeleteClick(car.id)}>
+                    <Trash2 className="w-4 h-4" />
                  </Button>
               </CardFooter>
             </Card>
@@ -585,106 +592,182 @@ export default function CarsPage() {
 
       {/* View Details Modal */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Car Details</DialogTitle>
-             <DialogDescription>Full information about the vehicle.</DialogDescription>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <Car className="w-6 h-6 text-primary" />
+              {selectedCar?.name}
+            </DialogTitle>
+            <DialogDescription>Complete vehicle information and specifications</DialogDescription>
           </DialogHeader>
           
           {selectedCar && (
             <div className="space-y-6 py-4">
               {/* Images Carousel/Grid */}
               {selectedCar.images && selectedCar.images.length > 0 && (
-                <div className="space-y-2">
-                   <Label className="text-muted-foreground">Car Images</Label>
-                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                <div className="space-y-3">
+                   <div className="flex items-center gap-2">
+                     <ImageIcon className="w-4 h-4 text-primary" />
+                     <Label className="font-semibold text-base">Vehicle Gallery</Label>
+                   </div>
+                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                      {selectedCar.images.map((img, index) => (
-                        <div key={index} className="relative aspect-video rounded-lg overflow-hidden border bg-muted">
+                        <div key={index} className="relative aspect-video rounded-xl overflow-hidden border-2 border-border/50 shadow-sm bg-muted group">
                            <img 
                              src={img} 
                              alt={`${selectedCar.name} ${index + 1}`} 
-                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                             className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                            />
+                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                         </div>
                      ))}
                    </div>
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                 <div>
-                    <Label className="text-muted-foreground">Name</Label>
-                    <p className="font-semibold text-lg">{selectedCar.name}</p>
+              {/* Vehicle Information Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="border-l-4 border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 pl-4 py-3 rounded-r-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Car className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Vehicle Name</Label>
+                    </div>
+                    <p className="font-bold text-lg text-foreground">{selectedCar.name}</p>
                  </div>
-                 <div>
-                    <Label className="text-muted-foreground">Model</Label>
-                    <p className="font-semibold">{selectedCar.model}</p>
+                 <div className="border-l-4 border-green-500 bg-green-50/50 dark:bg-green-950/20 pl-4 py-3 rounded-r-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" strokeWidth="2" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Model Year</Label>
+                    </div>
+                    <p className="font-bold text-lg text-foreground">{selectedCar.model}</p>
                  </div>
-                 <div>
-                    <Label className="text-muted-foreground">City</Label>
-                    <p className="font-semibold">{selectedCar.city}</p>
+                 <div className="border-l-4 border-orange-500 bg-orange-50/50 dark:bg-orange-950/20 pl-4 py-3 rounded-r-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <MapPin className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Location</Label>
+                    </div>
+                    <p className="font-bold text-lg text-foreground">{selectedCar.city}</p>
                  </div>
-                 <div>
-                    <Label className="text-muted-foreground">Driver Option</Label>
-                    <p className="font-semibold">{selectedCar.hasDriver ? "Included" : "Self Drive"}</p>
+                 <div className="border-l-4 border-cyan-500 bg-cyan-50/50 dark:bg-cyan-950/20 pl-4 py-3 rounded-r-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <User className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Service Type</Label>
+                    </div>
+                    <p className="font-bold text-lg text-foreground">{selectedCar.hasDriver ? "With Driver" : "Self Drive"}</p>
                  </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
-                 <div>
-                    <Label className="text-muted-foreground text-xs">Price Per Day</Label>
-                    <p className="font-bold text-primary text-xl">${selectedCar.pricePerDay}</p>
+              {/* Pricing Section */}
+              <div className="bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-800 rounded-xl p-5">
+                 <div className="flex items-center gap-2 mb-4">
+                   <DollarSign className="w-5 h-5 text-primary" />
+                   <h3 className="font-bold text-lg">Pricing Information</h3>
                  </div>
-                 <div>
-                    <Label className="text-muted-foreground text-xs">Place to Place</Label>
-                    <p className="font-bold text-primary text-xl">${selectedCar.pricePlaceToPlace}</p>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-4 hover:shadow-md transition-shadow">
+                     <div className="flex items-baseline justify-between">
+                       <div>
+                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Daily Rate</p>
+                         <p className="text-3xl font-bold text-primary">${selectedCar.pricePerDay}</p>
+                       </div>
+                       <div className="text-right">
+                         <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold px-2 py-1 rounded-full">per day</div>
+                       </div>
+                     </div>
+                   </div>
+                   <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-4 hover:shadow-md transition-shadow">
+                     <div className="flex items-baseline justify-between">
+                       <div>
+                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Point to Point</p>
+                         <p className="text-3xl font-bold text-primary">${selectedCar.pricePlaceToPlace}</p>
+                       </div>
+                       <div className="text-right">
+                         <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold px-2 py-1 rounded-full">fixed</div>
+                       </div>
+                     </div>
+                   </div>
                  </div>
               </div>
 
-               <div>
-                  <Label className="text-muted-foreground">Description</Label>
-                  <p className="text-sm mt-1 text-foreground/80">{selectedCar.description}</p>
+               {/* Description Section */}
+               <div className="border rounded-lg p-4 bg-muted/30">
+                  <Label className="font-semibold text-base mb-2 block">Vehicle Description</Label>
+                  <p className="text-sm leading-relaxed text-foreground/80">{selectedCar.description}</p>
                </div>
 
+               {/* Driver Information Section */}
                {selectedCar.hasDriver && selectedCar.driverInfo && (
-                  <div className="border-t pt-4 mt-4 space-y-4">
-                     <h3 className="font-semibold flex items-center gap-2 text-lg">
-                        <User className="w-5 h-5 text-primary" /> Driver Information
-                     </h3>
+                  <div className="bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
+                     <div className="flex items-center gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <User className="w-5 h-5 text-primary" />
+                        </div>
+                        <h3 className="font-bold text-lg">Driver Information</h3>
+                     </div>
                      
-                     <div className="flex flex-col gap-4">
-                        <div className="space-y-2 pl-1">
-                           <p className="font-bold text-xl">{selectedCar.driverInfo.name}</p>
-                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/20 p-2 rounded">
-                                 <Phone className="w-4 h-4 text-primary" /> {selectedCar.driverInfo.phone}
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/20 p-2 rounded">
-                                 <Mail className="w-4 h-4 text-primary" /> {selectedCar.driverInfo.email}
-                              </div>
-                           </div>
-                           
-                           {selectedCar.driverInfo.pricePerDay && (
-                             <div className="flex items-center gap-2 text-sm font-semibold text-primary mt-2 bg-primary/10 p-2 rounded w-fit">
-                                <DollarSign className="w-4 h-4" /> ${selectedCar.driverInfo.pricePerDay} / day (Driver Fee)
-                             </div>
-                           )}
+                     <div className="space-y-4">
+                        {/* Driver Name */}
+                        <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
+                           <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Driver Name</Label>
+                           <p className="font-bold text-xl text-foreground">{selectedCar.driverInfo.name}</p>
                         </div>
 
+                        {/* Contact Information */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                           <div className="border-l-4 border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 pl-4 py-3 rounded-r-lg">
+                              <div className="flex items-center gap-2 mb-1">
+                                 <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Phone</Label>
+                              </div>
+                              <p className="font-semibold text-foreground">{selectedCar.driverInfo.phone}</p>
+                           </div>
+                           <div className="border-l-4 border-green-500 bg-green-50/50 dark:bg-green-950/20 pl-4 py-3 rounded-r-lg">
+                              <div className="flex items-center gap-2 mb-1">
+                                 <Mail className="w-4 h-4 text-green-600 dark:text-green-400" />
+                                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</Label>
+                              </div>
+                              <p className="font-semibold text-foreground text-sm">{selectedCar.driverInfo.email}</p>
+                           </div>
+                        </div>
+                        
+                        {/* Driver Fee */}
+                        {selectedCar.driverInfo.pricePerDay && (
+                          <div className="bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-200 dark:border-amber-900 rounded-lg p-4">
+                             <div className="flex items-center justify-between">
+                               <div className="flex items-center gap-3">
+                                 <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
+                                   <DollarSign className="w-5 h-5 text-amber-700 dark:text-amber-400" />
+                                 </div>
+                                 <div>
+                                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Driver Fee</p>
+                                   <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">${selectedCar.driverInfo.pricePerDay}</p>
+                                 </div>
+                               </div>
+                               <div className="bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-200 text-xs font-semibold px-3 py-1 rounded-full">per day</div>
+                             </div>
+                          </div>
+                        )}
+
+                        {/* Driver Documents/Images */}
                         {selectedCar.driverInfo.images && selectedCar.driverInfo.images.length > 0 ? (
-                           <div className="space-y-2">
-                              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Driver Documents / Images</Label>
-                              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                           <div className="space-y-3">
+                              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                                <ImageIcon className="w-4 h-4" />
+                                Driver Documents & Photos
+                              </Label>
+                              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                                  {selectedCar.driverInfo.images.map((img, idx) => (
-                                    <div key={idx} className="relative aspect-square rounded-md overflow-hidden border bg-muted group cursor-pointer">
-                                       <img src={img} alt={`Driver Doc ${idx}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                    <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border-2 border-border shadow-sm bg-muted group cursor-pointer hover:border-primary transition-all">
+                                       <img src={img} alt={`Driver Doc ${idx}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                                     </div>
                                  ))}
                               </div>
                            </div>
                         ) : (
-                           <div className="flex items-center gap-2 text-muted-foreground text-sm italic bg-muted/30 p-3 rounded">
-                              <User className="w-4 h-4" /> No driver images provided
+                           <div className="flex items-center gap-3 text-muted-foreground text-sm bg-muted/50 border border-dashed p-4 rounded-lg">
+                              <ImageIcon className="w-5 h-5" />
+                              <span>No driver documents uploaded</span>
                            </div>
                         )}
                      </div>
