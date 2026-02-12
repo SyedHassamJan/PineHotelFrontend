@@ -246,16 +246,16 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
   return (
     <div className="w-full bg-background">
       {/* Gallery Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 animate-fadeInUp">
           {/* Main Image */}
-          <div className="h-96 rounded-lg overflow-hidden">
+          <div className="h-96 rounded-2xl overflow-hidden shadow-2xl border border-border hover:border-primary/50 transition-all duration-500">
             <Image
               src={hotelImages[selectedImage] || '/placeholder-hotel.jpg'}
               alt={hotel.name}
               width={800}
               height={600}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
               onError={(e) => {
                 const target = e.target as HTMLImageElement
                 target.src = '/placeholder-hotel.jpg'
@@ -268,17 +268,18 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
             {hotelImages.slice(0, 4).map((image, idx) => (
               <div 
                 key={idx} 
-                className={`h-44 rounded-lg overflow-hidden cursor-pointer transition border-2 ${
+                className={`h-44 rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 border-2 shadow-lg hover:shadow-2xl transform hover:scale-105 ${
                   selectedImage === idx ? 'border-primary' : 'border-transparent hover:border-primary/50'
                 }`}
                 onClick={() => setSelectedImage(idx)}
+                style={{animationDelay: `${idx * 0.1}s`}}
               >
                 <Image
                   src={image || '/placeholder-hotel.jpg'}
                   alt={`Gallery ${idx}`}
                   width={400}
                   height={300}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
                     target.src = '/placeholder-hotel.jpg'
@@ -290,10 +291,10 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* Hotel Info */}
-        <div className="flex flex-col lg:flex-row justify-between items-start gap-6 mb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-6 mb-8 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-bold text-foreground">{hotel.name}</h1>
+            <div className="flex items-center gap-3 mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold text-foreground">{hotel.name}</h1>
               <Badge variant={hotel.status === 'approved' ? 'default' : 'secondary'}>
                 {hotel.status}
               </Badge>
@@ -309,16 +310,16 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
           </div>
           
           {/* Price Card */}
-          <Card className="w-full lg:w-80">
-            <CardHeader>
+          <Card className="w-full lg:w-80 shadow-2xl border-primary/20 hover:border-primary/50 transition-all duration-500 hover:shadow-primary/10">
+            <CardHeader className="bg-gradient-to-br from-primary/5 to-transparent">
               <CardTitle className="text-lg">Starting From</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl font-bold text-primary">${lowestPrice.toFixed(2)}</span>
+            <CardContent className="pt-6">
+              <div className="flex items-baseline gap-2 mb-6">
+                <span className="text-4xl font-bold text-primary">${lowestPrice.toFixed(2)}</span>
                 <span className="text-muted-foreground">/night</span>
               </div>
-              <Button className="w-full" disabled={lowestPrice === 0}>
+              <Button className="w-full shadow-lg hover:shadow-xl" disabled={lowestPrice === 0}>
                 <Calendar className="w-4 h-4 mr-2" />
                 Check Availability
               </Button>
@@ -327,16 +328,16 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-border mb-8">
+        <div className="border-b border-border mb-8 animate-fadeInUp" style={{animationDelay: '0.3s'}}>
           <div className="flex gap-8">
             {["photos", "details", "rooms"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`py-4 px-1 font-semibold capitalize transition ${
+                className={`py-4 px-2 font-semibold capitalize transition-all duration-300 ${
                   activeTab === tab
-                    ? "border-b-2 border-primary text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "border-b-2 border-primary text-foreground scale-105"
+                    : "text-muted-foreground hover:text-foreground hover:scale-105"
                 }`}
               >
                 {tab}
@@ -347,21 +348,22 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
 
         {/* Tab Content */}
         {activeTab === "photos" && (
-          <div className="mb-16">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Hotel Gallery</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="mb-16 animate-fadeInUp">
+            <h2 className="text-3xl font-bold text-foreground mb-8">Hotel Gallery</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {hotelImages.map((image, idx) => (
                 <div 
                   key={idx} 
-                  className="h-48 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition"
+                  className="h-56 rounded-2xl overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-500 border border-border hover:border-primary/50 transform hover:scale-105 animate-fadeInUp"
                   onClick={() => setSelectedImage(idx)}
+                  style={{animationDelay: `${idx * 0.05}s`}}
                 >
                   <Image
                     src={image || '/placeholder-hotel.jpg'}
                     alt={`Photo ${idx + 1}`}
                     width={400}
                     height={300}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover hover:scale-125 transition-transform duration-700"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement
                       target.src = '/placeholder-hotel.jpg'
@@ -374,22 +376,22 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
         )}
 
         {activeTab === "details" && (
-          <div className="mb-16">
+          <div className="mb-16 animate-fadeInUp">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>About This Hotel</CardTitle>
+              <Card className="shadow-lg hover:shadow-2xl transition-all duration-500 border-border hover:border-primary/30 transform hover:-translate-y-1">
+                <CardHeader className="bg-gradient-to-br from-primary/5 to-transparent">
+                  <CardTitle className="text-xl">About This Hotel</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground leading-relaxed">
                     {hotel.description || 'No description available for this hotel.'}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
+              <Card className="shadow-lg hover:shadow-2xl transition-all duration-500 border-border hover:border-primary/30 transform hover:-translate-y-1">
+                <CardHeader className="bg-gradient-to-br from-primary/5 to-transparent">
+                  <CardTitle className="text-xl">Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-start gap-3">
@@ -449,8 +451,8 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
         )}
 
         {activeTab === "rooms" && (
-          <div className="mb-16">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Available Rooms</h2>
+          <div className="mb-16 animate-fadeInUp">
+            <h2 className="text-3xl font-bold text-foreground mb-8">Available Rooms</h2>
             {loadingRooms ? (
               <div className="grid gap-4">
                 {Array.from({ length: 3 }).map((_, i) => (
@@ -459,16 +461,16 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
               </div>
             ) : rooms.length > 0 ? (
               <div className="grid gap-6">
-                {rooms.map((room) => (
-                  <Card key={room.id} className="overflow-hidden">
+                {rooms.map((room, index) => (
+                  <Card key={room.id} className="overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border-border hover:border-primary/30 transform hover:-translate-y-2 animate-fadeInUp" style={{animationDelay: `${index * 0.1}s`}}>
                     <div className="grid md:grid-cols-3 gap-4">
                       {/* Room Image */}
-                      <div className="relative h-48 md:h-full">
+                      <div className="relative h-48 md:h-full overflow-hidden group/img">
                         <Image
                           src={room.images?.[0] || '/placeholder-room.jpg'}
                           alt={room.roomType}
                           fill
-                          className="object-cover"
+                          className="object-cover group-hover/img:scale-110 transition-transform duration-700"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
                             target.src = '/placeholder-room.jpg'
@@ -525,7 +527,7 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                         )}
 
                         <Button 
-                          className="w-full md:w-auto" 
+                          className="w-full md:w-auto shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300" 
                           disabled={!room.price || Number(room.price) === 0}
                           onClick={() => handleBookClick(room)}
                         >

@@ -296,6 +296,9 @@ export default function Home() {
   const [loadingTours, setLoadingTours] = useState(true)
   const [guides, setGuides] = useState<any[]>([])
   const [loadingGuides, setLoadingGuides] = useState(true)
+  const [currentVideo, setCurrentVideo] = useState(0)
+  const videos = ["/vids/hero1.mp4", "/vids/hero2.mp4"]
+  const [hoveredDestination, setHoveredDestination] = useState<string | null>(null)
 
   useEffect(() => {
     // Set default dates
@@ -452,29 +455,25 @@ export default function Home() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-visible">
-        <picture>
-          <source media="(min-width: 768px)" srcSet="" />
-          <img
-            src="/luxury-travel-destination.jpg"
-            alt="Hero background"
-            className="absolute inset-0 w-full h-full object-cover md:hidden"
-          />
-        </picture>
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Dual Video Background with Sequential Playback */}
+        {videos.map((video, index) => (
+          <video
+            key={video}
+            autoPlay
+            muted
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+              currentVideo === index ? "opacity-100" : "opacity-0"
+            }`}
+            onEnded={() => setCurrentVideo((prev) => (prev + 1) % videos.length)}
+            style={{ pointerEvents: currentVideo === index ? "auto" : "none" }}
+          >
+            <source src={video} type="video/mp4" />
+          </video>
+        ))}
 
-        {/* Video for desktop screens */}
-        <video
-          autoPlay
-          muted
-          loop
-          className="absolute inset-0 w-full h-full object-cover hidden md:block"
-          poster="/luxury-travel-destination.jpg"
-        >
-          <source src="https://videos.pexels.com/video-files/3195386/3195386-sd_640_360_25fps.mp4" type="video/mp4" />
-        </video>
-
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-foreground/40" />
+        {/* Dark Overlay with Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center mb-12 animate-fadeInUp">
@@ -580,125 +579,137 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Discount Offers Section */}
+      {/* Our Services & Features Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Discount Offers</h2>
-          <p className="text-lg text-muted-foreground">Exclusive deals tailored just for you</p>
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-foreground mb-3">Why Choose Us</h2>
+          <p className="text-base text-muted-foreground">Discover what makes us your perfect travel partner</p>
         </div>
-        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-          <div className="group relative h-40 rounded-lg overflow-hidden border border-border hover:shadow-lg transition-all cursor-pointer p-6 flex-shrink-0 w-80">
-            <img
-              src="/family-vacation-discount-beach.jpg"
-              alt="Family Discounts"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
-            />
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition"></div>
-            <div className="relative z-10 flex flex-col justify-between h-full">
-              <div>
-                <h3 className="text-2xl font-bold text-white mb-2">Family Discounts</h3>
-                <p className="text-white/90">Save up to 40% on family packages</p>
-              </div>
-              <button className="text-white font-semibold hover:underline text-sm">Learn More →</button>
-            </div>
-          </div>
-
-          <div className="group relative h-40 rounded-lg overflow-hidden border border-border hover:shadow-lg transition-all cursor-pointer p-6 flex-shrink-0 w-80">
+        <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory">
+          {/* Premium Hotels Card */}
+          <div className="group relative h-72 rounded-xl overflow-hidden border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-500 cursor-pointer flex-shrink-0 w-80 snap-center">
             <img
               src="/luxury-5-star-hotel.jpg"
-              alt="Hotel Deals"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
+              alt="Premium Hotels"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition"></div>
-            <div className="relative z-10 flex flex-col justify-between h-full">
-              <div>
-                <h3 className="text-2xl font-bold text-white mb-2">Hotel Deals</h3>
-                <p className="text-white/90">Exclusive rates at 5-star properties</p>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+            <div className="relative z-10 flex flex-col justify-end h-full p-6">
+              <div className="mb-3">
+                <div className="w-12 h-12 bg-primary/20 backdrop-blur-md rounded-full flex items-center justify-center mb-3 border border-primary/30">
+                  <Bed className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Premium Hotels</h3>
+                <p className="text-white/90 text-sm leading-relaxed">Experience luxury with our curated collection of 5-star hotels and boutique accommodations.</p>
               </div>
-              <button className="text-white font-semibold hover:underline text-sm">Explore Deals →</button>
             </div>
           </div>
 
-          <div className="group relative h-40 rounded-lg overflow-hidden border border-border hover:shadow-lg transition-all cursor-pointer p-6 flex-shrink-0 w-80">
+          {/* Curated Tours Card */}
+          <div className="group relative h-72 rounded-xl overflow-hidden border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-500 cursor-pointer flex-shrink-0 w-80 snap-center">
             <img
               src="/adventure-tour-mountains.jpg"
-              alt="Tour Packages"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
+              alt="Curated Tours"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition"></div>
-            <div className="relative z-10 flex flex-col justify-between h-full">
-              <div>
-                <h3 className="text-2xl font-bold text-white mb-2">Tour Packages</h3>
-                <p className="text-white/90">All-inclusive adventures at best prices</p>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+            <div className="relative z-10 flex flex-col justify-end h-full p-6">
+              <div className="mb-3">
+                <div className="w-12 h-12 bg-primary/20 backdrop-blur-md rounded-full flex items-center justify-center mb-3 border border-primary/30">
+                  <Plane className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Curated Tours</h3>
+                <p className="text-white/90 text-sm leading-relaxed">Explore breathtaking destinations with expertly designed tour packages.</p>
               </div>
-              <button className="text-white font-semibold hover:underline text-sm">View Packages →</button>
             </div>
           </div>
 
-          <div className="group relative h-40 rounded-lg overflow-hidden border border-border hover:shadow-lg transition-all cursor-pointer p-6 flex-shrink-0 w-80">
+          {/* Expert Guides Card */}
+          <div className="group relative h-72 rounded-xl overflow-hidden border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-500 cursor-pointer flex-shrink-0 w-80 snap-center">
+            <img
+              src="/male-tour-guide-professional-portrait.jpg"
+              alt="Expert Guides"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+            <div className="relative z-10 flex flex-col justify-end h-full p-6">
+              <div className="mb-3">
+                <div className="w-12 h-12 bg-primary/20 backdrop-blur-md rounded-full flex items-center justify-center mb-3 border border-primary/30">
+                  <Users className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Expert Guides</h3>
+                <p className="text-white/90 text-sm leading-relaxed">Connect with professional local guides who bring destinations to life.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Premium Fleet Card */}
+          <div className="group relative h-72 rounded-xl overflow-hidden border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-500 cursor-pointer flex-shrink-0 w-80 snap-center">
             <img
               src="/luxury-resort-vacation.jpg"
-              alt="Luxury Getaways"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
+              alt="Premium Fleet"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition"></div>
-            <div className="relative z-10 flex flex-col justify-between h-full">
-              <div>
-                <h3 className="text-2xl font-bold text-white mb-2">Luxury Getaways</h3>
-                <p className="text-white/90">Premium experiences with special offers</p>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+            <div className="relative z-10 flex flex-col justify-end h-full p-6">
+              <div className="mb-3">
+                <div className="w-12 h-12 bg-primary/20 backdrop-blur-md rounded-full flex items-center justify-center mb-3 border border-primary/30">
+                  <Car className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Premium Fleet</h3>
+                <p className="text-white/90 text-sm leading-relaxed">Travel in comfort with our diverse fleet of well-maintained vehicles.</p>
               </div>
-              <button className="text-white font-semibold hover:underline text-sm">Discover Luxury →</button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Featured Cars */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <SectionHeader
-          title="Featured Cars"
-          subtitle="Travel in style with our premium fleet"
-          centered
-        />
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-gradient-to-b from-transparent to-muted/30">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-foreground mb-3 animate-fadeInUp">Featured Cars</h2>
+          <p className="text-base text-muted-foreground animate-fadeInUp" style={{animationDelay: '0.1s'}}>Travel in style with our premium fleet</p>
+        </div>
         
         {loadingCars ? (
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            <div className="flex gap-8 overflow-x-auto pb-6 scrollbar-hide">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="flex-shrink-0 w-80 h-96 bg-muted animate-pulse rounded-lg" />
+                <div key={i} className="flex-shrink-0 w-80 h-96 bg-muted animate-pulse rounded-xl" />
               ))}
             </div>
         ) : cars.length > 0 ? (
           <>
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-              {cars.slice(0, 4).map((car) => (
-                <div key={car.id} className="flex-shrink-0 w-80 group">
-                   <div className="h-full rounded-lg overflow-hidden border bg-card shadow-sm hover:shadow-lg transition-all flex flex-col">
-                      <div className="h-48 relative bg-muted overflow-hidden">
+            <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory">
+              {cars.slice(0, 4).map((car, index) => (
+                <div key={car.id} className="flex-shrink-0 w-80 group snap-center animate-fadeInUp" style={{animationDelay: `${index * 0.1}s`}}>
+                   <div className="h-full rounded-2xl overflow-hidden border border-border hover:border-primary/50 bg-card shadow-lg hover:shadow-2xl transition-all duration-500 flex flex-col transform hover:-translate-y-2 hover:scale-[1.02]">
+                      <div className="h-52 relative bg-muted overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
                         <img 
                           src={car.images && car.images.length > 0 ? car.images[0] : "/placeholder.svg"} 
                           alt={car.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700"
                         />
-                        <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+                        <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm shadow-lg z-20 transform group-hover:scale-110 transition-transform duration-300">
                            {car.hasDriver ? "Driver Optional" : "Self Drive"}
                         </div>
                       </div>
-                      <div className="p-4 flex flex-col flex-1">
-                         <div className="mb-2">
-                            <h3 className="font-bold text-lg line-clamp-1">{car.name}</h3>
-                            <p className="text-sm text-muted-foreground flex items-center gap-1">
-                              <MapPin className="w-3 h-3" /> {car.city}
+                      <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-card to-card/50">
+                         <div className="mb-3">
+                            <h3 className="font-bold text-xl line-clamp-1 mb-2 group-hover:text-primary transition-colors duration-300">{car.name}</h3>
+                            <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                              <MapPin className="w-4 h-4 text-primary" /> {car.city}
                             </p>
                          </div>
-                         <p className="text-xs text-muted-foreground line-clamp-2 mb-4 flex-1">
+                         <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1 leading-relaxed">
                             {car.description}
                          </p>
-                         <div className="mt-auto pt-4 flex items-center justify-between border-t bg-muted/20 -mx-4 -mb-4 p-4">
+                         <div className="mt-auto pt-4 flex items-center justify-between border-t border-border">
                             <div>
-                               <p className="text-xs text-muted-foreground">Daily Rate</p>
-                               <p className="font-bold text-primary text-lg">${car.pricePerDay}</p>
+                               <p className="text-xs text-muted-foreground mb-1">Daily Rate</p>
+                               <p className="font-bold text-primary text-2xl">${car.pricePerDay}</p>
                             </div>
-                            <Link href={`/cars/${car.id}`} className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:bg-primary/90 transition-colors shadow-sm">
+                            <Link href={`/cars/${car.id}`} className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-xl transform hover:scale-110">
                                Book Now
                             </Link>
                          </div>
@@ -708,10 +719,10 @@ export default function Home() {
               ))}
             </div>
             {cars.length > 4 && (
-              <div className="flex justify-center mt-8">
+              <div className="flex justify-center mt-8 animate-fadeInUp" style={{animationDelay: '0.3s'}}>
                 <Link
                   href="/cars"
-                  className="px-8 py-3 w-full sm:w-auto text-center border border-input bg-background hover:bg-accent hover:text-accent-foreground text-sm font-medium rounded-md transition-colors"
+                  className="px-8 py-2.5 w-full sm:w-auto text-center border border-primary/30 bg-background hover:bg-primary hover:text-primary-foreground text-sm font-semibold rounded-md transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
                 >
                   View All Cars
                 </Link>
@@ -725,11 +736,10 @@ export default function Home() {
 
       {/* Featured Tours */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <SectionHeader
-          title="Featured Tours"
-          subtitle="Discover amazing tour packages"
-          centered
-        />
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-foreground mb-3 animate-fadeInUp">Featured Tours</h2>
+          <p className="text-base text-muted-foreground animate-fadeInUp" style={{animationDelay: '0.1s'}}>Discover amazing tour packages</p>
+        </div>
         {loadingTours ? (
            <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -737,7 +747,7 @@ export default function Home() {
         ) : tours.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
-              {tours.slice(0, 4).map((tour) => {
+              {tours.slice(0, 4).map((tour, index) => {
                 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
                 const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
                 const imageUrl = tour.cardImages && tour.cardImages.length > 0 
@@ -745,30 +755,29 @@ export default function Home() {
                   : '/placeholder.svg'
                 
                 return (
-                  <div key={tour.id} className="group border rounded-lg overflow-hidden hover:shadow-lg transition-all bg-card">
+                  <div key={tour.id} className="group border border-border rounded-2xl overflow-hidden hover:border-primary/50 hover:shadow-2xl transition-all duration-500 bg-card transform hover:-translate-y-2 hover:scale-[1.02] animate-fadeInUp" style={{animationDelay: `${index * 0.1}s`}}>
                     <div className="aspect-video relative overflow-hidden bg-muted">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
                       <img
                         src={imageUrl}
                         alt={tour.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700"
                       />
+                      <div className="absolute top-3 left-3 bg-primary/90 text-primary-foreground text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm shadow-lg z-20">
+                        {tour.durationDays}D / {tour.durationNights}N
+                      </div>
                     </div>
-                    <div className="p-4 space-y-3">
-                      <h3 className="font-semibold text-lg line-clamp-1">{tour.title}</h3>
+                    <div className="p-5 space-y-3 bg-gradient-to-b from-card to-card/50">
+                      <h3 className="font-bold text-lg line-clamp-1 group-hover:text-primary transition-colors duration-300">{tour.title}</h3>
                       {tour.shortDescription && (
                         <p className="text-sm text-muted-foreground line-clamp-2">{tour.shortDescription}</p>
                       )}
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="h-4 w-4" />
+                        <MapPin className="h-4 w-4 text-primary" />
                         <span className="line-clamp-1">{tour.city || tour.locations?.[0] || 'Multiple Locations'}</span>
                       </div>
-                      {tour.durationDays > 0 && (
-                        <div className="text-sm text-muted-foreground">
-                          {tour.durationDays} Days / {tour.durationNights} Nights
-                        </div>
-                      )}
                       {(tour.tourStartDate || tour.tourEndDate) && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground pt-3 border-t mt-3">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t">
                           <Calendar className="h-4 w-4" />
                           <span className="line-clamp-1">
                             {tour.tourStartDate ? new Date(tour.tourStartDate).toLocaleDateString() : 'N/A'} 
@@ -777,15 +786,15 @@ export default function Home() {
                           </span>
                         </div>
                       )}
-                      <div className="flex items-center justify-between pt-2 border-t">
+                      <div className="flex items-center justify-between pt-4 border-t">
                         <div>
                           <span className="text-xs text-muted-foreground">From</span>
-                          <div className="text-lg font-bold text-primary">${tour.pricePerPerson}</div>
+                          <div className="text-xl font-bold text-primary">${tour.pricePerPerson}</div>
                           <span className="text-xs text-muted-foreground">per person</span>
                         </div>
                         <Link
                           href={`/tours/${tour.id}`}
-                          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition text-sm font-medium"
+                          className="px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all duration-300 text-sm font-bold shadow-md hover:shadow-xl transform hover:scale-110"
                         >
                           Book Now
                         </Link>
@@ -795,10 +804,10 @@ export default function Home() {
                 )
               })}
             </div>
-            <div className="flex justify-center mt-8">
+            <div className="flex justify-center mt-8 animate-fadeInUp" style={{animationDelay: '0.3s'}}>
               <Link
                 href="/tours"
-                className="px-8 py-3 w-full sm:w-auto text-center border border-input bg-background hover:bg-accent hover:text-accent-foreground text-sm font-medium rounded-md transition-colors"
+                className="px-8 py-3 w-full sm:w-auto text-center border border-primary/30 bg-background hover:bg-primary hover:text-primary-foreground text-sm font-semibold rounded-md transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
               >
                 View All Tours
               </Link>
@@ -810,80 +819,152 @@ export default function Home() {
       </section>
 
       {/* Popular Destinations */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <SectionHeader
-          title="Popular Destinations"
-          subtitle="Explore the world's most sought-after locations"
-          centered
-        />
-        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 overflow-hidden">
+        {/* Dynamic Background */}
+        <div className="absolute inset-0 -z-10">
           {DESTINATIONS.map((destination) => (
             <div
               key={destination.name}
-              className="group relative h-64 rounded-lg overflow-hidden border border-border hover:shadow-lg transition-all cursor-pointer animate-fadeInUp flex-shrink-0 w-80"
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                hoveredDestination === destination.name ? 'opacity-100' : 'opacity-0'
+              }`}
             >
               <img
                 src={destination.image || "/placeholder.svg"}
                 alt={destination.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                className="w-full h-full object-cover scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-transparent to-transparent flex items-end p-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-primary-foreground">{destination.name}</h3>
-                  <p className="text-primary-foreground/80">{destination.country}</p>
-                </div>
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background/50"></div>
             </div>
           ))}
+        </div>
+
+        <div className="relative z-10">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Popular Destinations
+            </h2>
+            <p className="text-base text-muted-foreground">Explore Pakistan's most breathtaking locations</p>
+          </div>
+          <div className="relative">
+            <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory scroll-smooth">
+              {DESTINATIONS.map((destination, index) => (
+                <div
+                  key={destination.name}
+                  onMouseEnter={() => setHoveredDestination(destination.name)}
+                  onMouseLeave={() => setHoveredDestination(null)}
+                  className="group relative h-64 rounded-xl overflow-hidden border border-border hover:border-primary/50 shadow-md hover:shadow-2xl transition-all duration-500 cursor-pointer flex-shrink-0 w-56 snap-center transform hover:-translate-y-2 hover:scale-105"
+                  style={{
+                    animation: `fadeInUp 0.6s ease-out ${index * 0.1}s backwards`
+                  }}
+                >
+                  <div className="absolute inset-0 overflow-hidden">
+                    <img
+                      src={destination.image || "/placeholder.svg"}
+                      alt={destination.name}
+                      className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700 ease-out"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col justify-end p-4">
+                    <div className="transform translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
+                      <div className="mb-2">
+                        <MapPin className="w-4 h-4 text-primary mb-1" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors duration-300">
+                        {destination.name}
+                      </h3>
+                      <p className="text-white/90 text-xs font-medium">{destination.country}</p>
+                      <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <button className="px-3 py-1 bg-primary/90 hover:bg-primary text-white rounded-md font-semibold text-xs backdrop-blur-sm border border-primary/30 transform hover:scale-105 transition-all duration-300">
+                          Explore Now →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Decorative corner accent */}
+                  <div className="absolute top-2 right-2 w-8 h-8 border-t border-r border-primary/40 group-hover:border-primary transition-colors duration-500"></div>
+                </div>
+              ))}
+            </div>
+            {/* Scroll indicators */}
+            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-8 h-24 bg-gradient-to-r from-background to-transparent pointer-events-none"></div>
+            <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-24 bg-gradient-to-l from-background to-transparent pointer-events-none"></div>
+          </div>
         </div>
       </section>
 
       {/* Featured Hotels */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-0">
-        <SectionHeader
-          title="Featured Hotels"
-          subtitle="Curated luxury accommodations for your perfect stay"
-          centered
-        />
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-0 bg-gradient-to-b from-muted/30 to-transparent">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-foreground mb-3 animate-fadeInUp">Featured Hotels</h2>
+          <p className="text-base text-muted-foreground animate-fadeInUp" style={{animationDelay: '0.1s'}}>Curated luxury accommodations for your perfect stay</p>
+        </div>
         
         {loadingHotels ? (
           <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex-shrink-0 w-80 h-96 bg-muted animate-pulse rounded-lg" />
+              <div key={i} className="flex-shrink-0 w-80 h-96 bg-muted animate-pulse rounded-xl" />
             ))}
           </div>
         ) : hotels.length > 0 ? (
           <>
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-              {hotels.slice(0, 4).map((hotel) => {
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+              {hotels.slice(0, 4).map((hotel, index) => {
                 // Calculate average price from rooms if available
                 const avgPrice = hotel.rooms && hotel.rooms.length > 0
                   ? hotel.rooms.reduce((sum: number, room: any) => sum + (Number(room.price) || 0), 0) / hotel.rooms.length
                   : 0
 
                 return (
-                  <div key={hotel.id} className="flex-shrink-0 w-80">
-                    <HotelCard
-                      id={hotel.id}
-                      name={hotel.name}
-                      image={hotel.images[0] || "/placeholder.svg"}
-                      location={`${hotel.city}, ${hotel.country}`}
-                      price={Math.round(avgPrice)}
-                      rating={4.5}
-                      reviews={0}
-                      hotelRank={hotel.hotelRank}
-                      numberOfRooms={hotel.numberOfRooms}
-                    />
+                  <div key={hotel.id} className="flex-shrink-0 w-80 snap-center animate-fadeInUp" style={{animationDelay: `${index * 0.1}s`}}>
+                    <div className="h-full rounded-2xl overflow-hidden border border-border hover:border-primary/50 bg-card shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-[1.02] group">
+                      <div className="h-56 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+                        <img 
+                          src={hotel.images[0] || "/placeholder.svg"}
+                          alt={hotel.name}
+                          className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700"
+                        />
+                        {hotel.hotelRank && (
+                          <div className="absolute top-3 left-3 bg-primary/90 text-primary-foreground text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm shadow-lg z-20 transform group-hover:scale-110 transition-transform duration-300">
+                            {hotel.hotelRank} Star
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-5 bg-gradient-to-b from-card to-card/50">
+                        <h3 className="font-bold text-xl line-clamp-1 mb-2 group-hover:text-primary transition-colors duration-300">{hotel.name}</h3>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2 mb-3">
+                          <MapPin className="w-4 h-4 text-primary" /> {`${hotel.city}, ${hotel.country}`}
+                        </p>
+                        {hotel.numberOfRooms && (
+                          <p className="text-xs text-muted-foreground mb-4">{hotel.numberOfRooms} Rooms Available</p>
+                        )}
+                        <div className="flex items-center justify-between pt-4 border-t border-border">
+                          <div>
+                            <span className="text-xs text-muted-foreground mb-1 block">Starting from</span>
+                            <span className="text-2xl font-bold text-primary">${Math.round(avgPrice)}</span>
+                            <span className="text-xs text-muted-foreground">/night</span>
+                          </div>
+                          <Link
+                            href={`/hotels/${hotel.id}`}
+                            className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-xl transform hover:scale-110"
+                          >
+                            Book Now
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )
               })}
             </div>
             
             {hotels.length > 4 && (
-              <div className="flex justify-center mt-8">
+              <div className="flex justify-center mt-8 animate-fadeInUp" style={{animationDelay: '0.3s'}}>
                 <Link
                   href="/hotels"
-                  className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                  className="px-8 py-2.5 w-full sm:w-auto text-center border border-primary/30 bg-background hover:bg-primary hover:text-primary-foreground text-sm font-semibold rounded-md transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
                 >
                   View More Hotels
                 </Link>
@@ -898,11 +979,10 @@ export default function Home() {
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <SectionHeader
-          title="Top-Rated Guides"
-          subtitle="Connect with expert local guides for unforgettable experiences"
-          centered
-        />
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-foreground mb-3 animate-fadeInUp">Top-Rated Guides</h2>
+          <p className="text-base text-muted-foreground animate-fadeInUp" style={{animationDelay: '0.1s'}}>Connect with expert local guides for unforgettable experiences</p>
+        </div>
         {loadingGuides ? (
           <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
             {[1, 2, 3, 4].map((i) => (
@@ -911,8 +991,8 @@ export default function Home() {
           </div>
         ) : guides.length > 0 ? (
           <>
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-              {guides.slice(0, 4).map((guide) => {
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+              {guides.slice(0, 4).map((guide, index) => {
                 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
                 const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
                 const imageUrl = guide.images && guide.images.length > 0 
@@ -920,15 +1000,44 @@ export default function Home() {
                   : '/placeholder.svg'
 
                 return (
-                  <div key={guide.id} className="flex-shrink-0 w-80">
-                    <GuideCard 
-                      id={guide.id}
-                      name={guide.name}
-                      image={imageUrl}
-                      languages={guide.languages}
-                      experience={guide.experienceYears}
-                      dailyRate={guide.pricePerDay}
-                    />
+                  <div key={guide.id} className="flex-shrink-0 w-80 snap-center animate-fadeInUp" style={{animationDelay: `${index * 0.1}s`}}>
+                    <div className="h-full rounded-2xl overflow-hidden border border-border hover:border-primary/50 bg-card shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-[1.02] group">
+                      <div className="h-64 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+                        <img 
+                          src={imageUrl}
+                          alt={guide.name}
+                          className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700"
+                        />
+                        <div className="absolute top-3 right-3 bg-primary/90 text-primary-foreground text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm shadow-lg z-20 transform group-hover:scale-110 transition-transform duration-300">
+                          {guide.experienceYears}+ Years
+                        </div>
+                      </div>
+                      <div className="p-5 bg-gradient-to-b from-card to-card/50">
+                        <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors duration-300">{guide.name}</h3>
+                        {guide.languages && guide.languages.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-3">
+                            {guide.languages.slice(0, 3).map((lang: string) => (
+                              <span key={lang} className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-medium">
+                                {lang}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between pt-4 border-t border-border">
+                          <div>
+                            <span className="text-xs text-muted-foreground mb-1 block">Daily Rate</span>
+                            <span className="text-2xl font-bold text-primary">${guide.pricePerDay}</span>
+                          </div>
+                          <Link
+                            href={`/tour-guides/${guide.id}`}
+                            className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-xl transform hover:scale-110"
+                          >
+                            View Profile
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )
               })}
@@ -936,7 +1045,7 @@ export default function Home() {
             <div className="flex justify-center mt-8">
               <Link
                 href="/tour-guides"
-                className="px-8 py-3 w-full sm:w-auto text-center border border-input bg-background hover:bg-accent hover:text-accent-foreground text-sm font-medium rounded-md transition-colors"
+                className="px-8 py-2.5 w-full sm:w-auto text-center border border-primary/30 bg-background hover:bg-primary hover:text-primary-foreground text-sm font-semibold rounded-md transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
               >
                 View All Guides
               </Link>
@@ -950,33 +1059,40 @@ export default function Home() {
       </section>
 
       {/* CTA Section - Book Now */}
-      <section className="bg-primary text-primary-foreground py-16 my-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold mb-4">Ready to Book Your Next Trip?</h2>
-          <p className="text-xl text-primary-foreground/90 mb-8">
-            Browse thousands of hotels, tours, and expert guides to plan your perfect journey.
+      <section className="relative bg-gradient-to-r from-primary via-primary/90 to-primary text-primary-foreground py-16 my-10 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-10"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-foreground/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary-foreground/5 rounded-full blur-3xl"></div>
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Book Your Next Adventure?</h2>
+          <p className="text-base text-primary-foreground/95 mb-8 max-w-3xl mx-auto leading-relaxed">
+            Browse thousands of hotels, tours, and expert guides to plan your perfect journey. Your dream destination awaits.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-background text-foreground px-8 py-3 rounded-lg font-semibold hover:bg-background/90 transition">
+            <Link href="/hotels" className="bg-background text-foreground px-8 py-2.5 rounded-md font-semibold hover:bg-background/90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
               Explore Hotels
-            </button>
-            <button className="border-2 border-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary-foreground/20 transition">
+            </Link>
+            <Link href="/tours" className="border-2 border-primary-foreground bg-transparent text-primary-foreground px-8 py-2.5 rounded-md font-semibold hover:bg-primary-foreground hover:text-primary transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
               View Tours
-            </button>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* CTA Section - Create Your Tour */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-gradient-to-r from-secondary/10 to-primary/10 rounded-xl border border-border p-12 text-center">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Create Your Custom Tour</h2>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Can't find your perfect itinerary? Build a custom tour tailored to your interests, budget, and travel style.
-          </p>
-          <button className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition">
-            Start Building
-          </button>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mb-10">
+        <div className="relative bg-gradient-to-br from-secondary/20 via-primary/10 to-primary/20 rounded-xl border border-primary/20 p-12 text-center overflow-hidden shadow-lg">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
+          <div className="relative">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Create Your Custom Tour</h2>
+            <p className="text-base text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+              Can't find your perfect itinerary? Build a custom tour tailored to your interests, budget, and travel style with our expert team.
+            </p>
+            <Link href="/create-tour" className="inline-block bg-primary text-primary-foreground px-8 py-2.5 rounded-md font-semibold hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
+              Start Building Your Dream Tour
+            </Link>
+          </div>
         </div>
       </section>
     </div>

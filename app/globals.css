@@ -146,7 +146,7 @@
   @keyframes fadeInUp {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(30px);
     }
     to {
       opacity: 1;
@@ -157,7 +157,7 @@
   @keyframes slideInDown {
     from {
       opacity: 0;
-      transform: translateY(-10px);
+      transform: translateY(-30px);
     }
     to {
       opacity: 1;
@@ -168,7 +168,7 @@
   @keyframes scaleIn {
     from {
       opacity: 0;
-      transform: scale(0.95);
+      transform: scale(0.9);
     }
     to {
       opacity: 1;
@@ -176,16 +176,58 @@
     }
   }
 
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
   .animate-fadeInUp {
-    animation: fadeInUp 0.5s ease-out;
+    animation: fadeInUp 0.6s ease-out backwards;
   }
 
   .animate-slideInDown {
-    animation: slideInDown 0.5s ease-out;
+    animation: slideInDown 0.6s ease-out backwards;
   }
 
   .animate-scaleIn {
-    animation: scaleIn 0.3s ease-out;
+    animation: scaleIn 0.4s ease-out;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 3s infinite linear;
+    background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+    background-size: 1000px 100%;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Smooth scroll behavior with offset for fixed headers */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  /* Snap scroll for horizontal scrolling */
+  .snap-x {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-center {
+    scroll-snap-align: center;
   }
 
   /* hide scrollbar while keeping scroll functionality */
@@ -196,5 +238,20 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
