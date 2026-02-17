@@ -41,7 +41,7 @@ export default function ContactPage() {
 
   return (
     <div className="relative overflow-hidden">
-      <Navbar />
+      {/* <Navbar />  */}
 
       {/* Animated Background Elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -331,7 +331,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <Footer />
+      {/* <Footer /> */}
 
       <style jsx global>{`
         @keyframes float {
