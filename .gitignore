@@ -3,7 +3,6 @@
 /.pnp
 .pnp.js
 
-.env.local
 
 # testing
 /coverage
@@ -38,3 +37,4 @@ next-env.d.ts
 public/vids/*.mp4
 public/vids/*.mov
 public/vids/*.avi
+config.bat

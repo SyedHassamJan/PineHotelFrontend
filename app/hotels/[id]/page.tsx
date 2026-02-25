@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, use } from "react"
-import { Star, MapPin, Phone, Mail, Calendar, Bed, Users, DollarSign } from "lucide-react"
+import { Star, MapPin, Phone, Mail, Calendar, Bed, Users, Clock, CheckCircle, XCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,7 +10,6 @@ import { Separator } from "@/components/ui/separator"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
 import Image from "next/image"
 
@@ -38,6 +37,13 @@ interface Room {
   updatedAt: string
 }
 
+interface RoomBooking {
+  id: string
+  roomId: string
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
+  roomsBooked: number
+}
+
 interface Hotel {
   id: string
   name: string
@@ -63,6 +69,7 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true)
   const [loadingRooms, setLoadingRooms] = useState(true)
   const [selectedImage, setSelectedImage] = useState(0)
+  const [roomBookings, setRoomBookings] = useState<RoomBooking[]>([])
 
   // Booking State
   const [isBookingOpen, setIsBookingOpen] = useState(false)
@@ -76,6 +83,26 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
     checkOut: "",
     roomsBooked: 1
   })
+
+  // Helper: get confirmed count for a room
+  const getConfirmedCount = (roomId: string) => {
+    return roomBookings
+      .filter(b => b.roomId === roomId && (b.status === 'CONFIRMED'))
+      .reduce((sum, b) => sum + (b.roomsBooked || 1), 0)
+  }
+
+  // Helper: get pending count for a room
+  const getPendingCount = (roomId: string) => {
+    return roomBookings
+      .filter(b => b.roomId === roomId && b.status === 'PENDING')
+      .reduce((sum, b) => sum + (b.roomsBooked || 1), 0)
+  }
+
+  // Helper: get available rooms count
+  const getAvailableCount = (room: Room) => {
+    const confirmed = getConfirmedCount(room.id)
+    return Math.max(0, room.quantity - confirmed)
+  }
 
   const handleBookClick = (room: Room) => {
     setSelectedRoom(room)
@@ -96,11 +123,11 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
 
     // Validate all fields are filled
     if (
-      !bookingData.userName || 
-      !bookingData.userEmail || 
-      !bookingData.userPhone || 
-      !bookingData.checkIn || 
-      !bookingData.checkOut || 
+      !bookingData.userName ||
+      !bookingData.userEmail ||
+      !bookingData.userPhone ||
+      !bookingData.checkIn ||
+      !bookingData.checkOut ||
       !bookingData.roomsBooked
     ) {
       toast.error("Validation Error", {
@@ -170,6 +197,7 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
   useEffect(() => {
     fetchHotelData()
     fetchRooms()
+    fetchRoomBookings()
   }, [hotelId])
 
   const fetchHotelData = async () => {
@@ -202,6 +230,20 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
       console.error('Error fetching rooms:', error)
     } finally {
       setLoadingRooms(false)
+    }
+  }
+
+  const fetchRoomBookings = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001/'
+      const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+      // Fetch all bookings for this hotel using the public endpoint
+      const response = await fetch(`${normalizedBaseUrl}api/bookings`)
+      if (!response.ok) return
+      const data: RoomBooking[] = await response.json()
+      setRoomBookings(data)
+    } catch (error) {
+      console.error('Error fetching bookings:', error)
     }
   }
 
@@ -262,17 +304,16 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
               }}
             />
           </div>
-          
+
           {/* Thumbnail Grid */}
           <div className="grid grid-cols-2 gap-4">
             {hotelImages.slice(0, 4).map((image, idx) => (
-              <div 
-                key={idx} 
-                className={`h-44 rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 border-2 shadow-lg hover:shadow-2xl transform hover:scale-105 ${
-                  selectedImage === idx ? 'border-primary' : 'border-transparent hover:border-primary/50'
-                }`}
+              <div
+                key={idx}
+                className={`h-44 rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 border-2 shadow-lg hover:shadow-2xl transform hover:scale-105 ${selectedImage === idx ? 'border-primary' : 'border-transparent hover:border-primary/50'
+                  }`}
                 onClick={() => setSelectedImage(idx)}
-                style={{animationDelay: `${idx * 0.1}s`}}
+                style={{ animationDelay: `${idx * 0.1}s` }}
               >
                 <Image
                   src={image || '/placeholder-hotel.jpg'}
@@ -291,7 +332,7 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* Hotel Info */}
-        <div className="flex flex-col lg:flex-row justify-between items-start gap-6 mb-8 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-6 mb-8 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-4">
               <h1 className="text-4xl md:text-5xl font-bold text-foreground">{hotel.name}</h1>
@@ -308,7 +349,7 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
               <span>{hotel.city}, {hotel.country}</span>
             </div>
           </div>
-          
+
           {/* Price Card */}
           <Card className="w-full lg:w-80 shadow-2xl border-primary/20 hover:border-primary/50 transition-all duration-500 hover:shadow-primary/10">
             <CardHeader className="bg-gradient-to-br from-primary/5 to-transparent">
@@ -328,17 +369,16 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-border mb-8 animate-fadeInUp" style={{animationDelay: '0.3s'}}>
+        <div className="border-b border-border mb-8 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
           <div className="flex gap-8">
             {["photos", "details", "rooms"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`py-4 px-2 font-semibold capitalize transition-all duration-300 ${
-                  activeTab === tab
+                className={`py-4 px-2 font-semibold capitalize transition-all duration-300 ${activeTab === tab
                     ? "border-b-2 border-primary text-foreground scale-105"
                     : "text-muted-foreground hover:text-foreground hover:scale-105"
-                }`}
+                  }`}
               >
                 {tab}
               </button>
@@ -352,11 +392,11 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
             <h2 className="text-3xl font-bold text-foreground mb-8">Hotel Gallery</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {hotelImages.map((image, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   className="h-56 rounded-2xl overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-500 border border-border hover:border-primary/50 transform hover:scale-105 animate-fadeInUp"
                   onClick={() => setSelectedImage(idx)}
-                  style={{animationDelay: `${idx * 0.05}s`}}
+                  style={{ animationDelay: `${idx * 0.05}s` }}
                 >
                   <Image
                     src={image || '/placeholder-hotel.jpg'}
@@ -461,82 +501,128 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
               </div>
             ) : rooms.length > 0 ? (
               <div className="grid gap-6">
-                {rooms.map((room, index) => (
-                  <Card key={room.id} className="overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border-border hover:border-primary/30 transform hover:-translate-y-2 animate-fadeInUp" style={{animationDelay: `${index * 0.1}s`}}>
-                    <div className="grid md:grid-cols-3 gap-4">
-                      {/* Room Image */}
-                      <div className="relative h-48 md:h-full overflow-hidden group/img">
-                        <Image
-                          src={room.images?.[0] || '/placeholder-room.jpg'}
-                          alt={room.roomType}
-                          fill
-                          className="object-cover group-hover/img:scale-110 transition-transform duration-700"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement
-                            target.src = '/placeholder-room.jpg'
-                          }}
-                        />
-                      </div>
-                      
-                      {/* Room Details */}
-                      <div className="md:col-span-2 p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex-1">
-                            <h3 className="text-xl font-semibold">{room.roomType}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {room.description || 'Comfortable and well-equipped room'}
-                            </p>
-                          </div>
-                          <div className="text-right ml-4">
-                            <div className="text-2xl font-bold text-primary">
-                              ${(Number(room.price) || 0).toFixed(2)}
-                            </div>
-                            <p className="text-xs text-muted-foreground">per night</p>
-                          </div>
-                        </div>
+                {rooms.map((room, index) => {
+                  const availableCount = getAvailableCount(room)
+                  const pendingCount = getPendingCount(room.id)
+                  const isFullyBooked = availableCount === 0
 
-                        <div className="flex items-center gap-4 mb-3 flex-wrap">
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Users className="h-4 w-4" />
-                            <span>{room.maxGuests} guests</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Bed className="h-4 w-4" />
-                            <span>{room.bedType}</span>
-                          </div>
-                          {room.roomFloor && (
-                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                              <MapPin className="h-4 w-4" />
-                              <span>Floor {room.roomFloor}</span>
+                  return (
+                    <Card
+                      key={room.id}
+                      className={`overflow-hidden shadow-lg transition-all duration-500 border animate-fadeInUp ${isFullyBooked
+                          ? 'border-red-200 dark:border-red-900 opacity-75'
+                          : 'hover:shadow-2xl hover:border-primary/30 transform hover:-translate-y-2 border-border'
+                        }`}
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <div className="grid md:grid-cols-3 gap-4">
+                        {/* Room Image */}
+                        <div className="relative h-48 md:h-full overflow-hidden group/img">
+                          <Image
+                            src={room.images?.[0] || '/placeholder-room.jpg'}
+                            alt={room.roomType}
+                            fill
+                            className={`object-cover transition-transform duration-700 ${isFullyBooked ? 'grayscale-[30%]' : 'group-hover/img:scale-110'
+                              }`}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              target.src = '/placeholder-room.jpg'
+                            }}
+                          />
+                          {isFullyBooked && (
+                            <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                              <span className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide shadow-lg">
+                                Fully Booked
+                              </span>
                             </div>
                           )}
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <DollarSign className="h-4 w-4" />
-                            <span>{room.quantity} rooms available</span>
-                          </div>
                         </div>
 
-                        {room.amenities && room.amenities.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {room.amenities.map((amenity) => (
-                              <Badge key={amenity.id} variant="outline">
-                                {amenity.name}
-                              </Badge>
-                            ))}
+                        {/* Room Details */}
+                        <div className="md:col-span-2 p-4">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="text-xl font-semibold">{room.roomType}</h3>
+                                {/* Pending badge */}
+                                {pendingCount > 0 && (
+                                  <Badge variant="outline" className="border-amber-400 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {pendingCount} pending
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {room.description || 'Comfortable and well-equipped room'}
+                              </p>
+                            </div>
+                            <div className="text-right ml-4">
+                              <div className="text-2xl font-bold text-primary">
+                                ${(Number(room.price) || 0).toFixed(2)}
+                              </div>
+                              <p className="text-xs text-muted-foreground">per night</p>
+                            </div>
                           </div>
-                        )}
 
-                        <Button 
-                          className="w-full md:w-auto shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300" 
-                          disabled={!room.price || Number(room.price) === 0}
-                          onClick={() => handleBookClick(room)}
-                        >
-                          Book Now
-                        </Button>
+                          <div className="flex items-center gap-4 mb-3 flex-wrap">
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Users className="h-4 w-4" />
+                              <span>{room.maxGuests} guests</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Bed className="h-4 w-4" />
+                              <span>{room.bedType}</span>
+                            </div>
+                            {room.roomFloor && (
+                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                <MapPin className="h-4 w-4" />
+                                <span>Floor {room.roomFloor}</span>
+                              </div>
+                            )}
+                            {/* Availability count */}
+                            <div className={`flex items-center gap-1 text-sm font-medium ${isFullyBooked
+                                ? 'text-red-500'
+                                : availableCount <= 2
+                                  ? 'text-amber-500'
+                                  : 'text-green-600 dark:text-green-400'
+                              }`}>
+                              {isFullyBooked ? (
+                                <XCircle className="h-4 w-4" />
+                              ) : (
+                                <CheckCircle className="h-4 w-4" />
+                              )}
+                              <span>
+                                {isFullyBooked
+                                  ? 'No rooms available'
+                                  : `${availableCount} of ${room.quantity} available`
+                                }
+                              </span>
+                            </div>
+                          </div>
+
+                          {room.amenities && room.amenities.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              {room.amenities.map((amenity) => (
+                                <Badge key={amenity.id} variant="outline">
+                                  {amenity.name}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+
+                          <Button
+                            className="w-full md:w-auto shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                            disabled={!room.price || Number(room.price) === 0 || isFullyBooked}
+                            variant={isFullyBooked ? 'outline' : 'default'}
+                            onClick={() => !isFullyBooked && handleBookClick(room)}
+                          >
+                            {isFullyBooked ? 'Fully Booked' : 'Book Now'}
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  )
+                })}
               </div>
             ) : (
               <p className="text-muted-foreground text-center py-8">
@@ -579,7 +665,7 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
             </div>
-            
+
             <div className="grid gap-2">
               <Label htmlFor="userPhone">Phone Number</Label>
               <Input
@@ -637,7 +723,6 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Toaster />
     </div>
   )
 }
